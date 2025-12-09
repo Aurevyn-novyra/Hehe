@@ -1,4 +1,28 @@
-html, body {
+\<\!DOCTYPE html\>
+
+\<html lang="en"\>
+\<head\>
+\<meta charset="UTF-8"\>
+\<meta name="viewport" content="width=device-width, initial-scale=1.0"\>
+\<title\>Will You Be My Universe?\</title\>
+\<style\>
+:root {
+\--color-cosmic-dark: \#0a0a1a;
+\--color-star-light: \#ffffff;
+\--color-tulip-red-a: \#cc2936;
+\--color-tulip-red-b: \#64121b;
+\--color-stem-green-a: \#0e301d;
+\--color-stem-green-b: \#1d5f30;
+\--color-ribbon: \#ffb5a7;
+\--color-text-glow: \#ffcc00;
+}
+
+```
+    /* --------------------------------------------------- */
+    /* BASE & SCENE SETUP */
+    /* --------------------------------------------------- */
+
+    html, body {
         margin: 0;
         padding: 0;
         width: 100%;
@@ -214,10 +238,15 @@ html, body {
     }
 
 </style>
-</head> <body>
+```
 
-<div id="app"> <canvas id="star-canvas"></canvas>
+\</head\>
+\<body\>
 
+\<div id="app"\>
+\<canvas id="star-canvas"\>\</canvas\>
+
+```
 <canvas id="tulip-canvas"></canvas>
 
 <button id="auto-advance-btn" class="btn" onclick="handleAutoAdvance()">Continue</button>
@@ -249,10 +278,27 @@ html, body {
         <h1 class="cinematic-text proposal-text">You were always my favorite galaxy 🌙🌷</h1>
     </div>
 </div>
-</div>
+```
 
-<script> // --------------------------------------------------- // GLOBAL STATE & CONSTANTS // --------------------------------------------------- const Scenes = { INTRO: 1, FIELD: 2, POEM: 3, PROPOSAL: 4 }; let currentScene = Scenes.INTRO; let autoAdvanceTimeout; let audioContext = null; let buffers = {}; let soundNodes = {};
+\</div\>
 
+\<script\>
+// ---------------------------------------------------
+// GLOBAL STATE & CONSTANTS
+// ---------------------------------------------------
+const Scenes = {
+INTRO: 1,
+FIELD: 2,
+POEM: 3,
+PROPOSAL: 4
+};
+let currentScene = Scenes.INTRO;
+let autoAdvanceTimeout;
+let audioContext = null;
+let buffers = {};
+let soundNodes = {};
+
+```
 // Canvas &amp; Contexts
 const starCanvas = document.getElementById(&#39;star-canvas&#39;);
 const starCtx = starCanvas.getContext(&#39;2d&#39;);
@@ -1021,6 +1067,8 @@ function initialize() {
 }
 
 window.onload = initialize;
-</script>
+```
 
-</body> </html>
+\</script\>
+
+\</body\> \</html\>
