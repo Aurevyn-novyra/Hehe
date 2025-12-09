@@ -32,6 +32,8 @@ body{
   overflow:hidden;
   background:radial-gradient(circle at 20% 0%,#222a4a 0%,#03040b 55%,#000000 100%);
 }
+
+/* Scenes */
 .scene{
   position:absolute;
   inset:0;
@@ -41,7 +43,7 @@ body{
   flex-direction:column;
   opacity:0;
   pointer-events:none;
-  transition:opacity 1s ease;
+  transition:opacity 0.9s ease;
 }
 .scene.active{
   opacity:1;
@@ -51,32 +53,24 @@ canvas{
   position:absolute;
   inset:0;
 }
-.overlay-content{
-  position:relative;
-  max-width:90%;
-  text-align:center;
-  padding:1.5rem;
-  z-index:5;
-}
 
-/* Romantic pseudo-font styling */
+/* Romantic text */
 .romantic-text{
   font-size:clamp(1.6rem,4vw,2.8rem);
-  letter-spacing:0.12em;
-  text-transform:none;
+  letter-spacing:0.14em;
   color:#ffeef7;
   text-shadow:
-     0 0 6px rgba(255,180,220,0.65),
-     0 0 18px rgba(170,120,255,0.85),
-     0 0 40px rgba(80,140,255,0.85);
+    0 0 4px rgba(255,200,240,0.6),
+    0 0 14px rgba(174,129,255,0.9),
+    0 0 34px rgba(100,156,255,0.8);
   filter:blur(0.15px);
   position:relative;
 }
 .romantic-text::before{
   content:attr(data-shadow);
   position:absolute;
-  inset:0.03em 0 0 0.04em;
-  color:rgba(255,255,255,0.15);
+  inset:0.03em 0 0 0.06em;
+  color:rgba(255,255,255,0.18);
   mix-blend-mode:screen;
 }
 .romantic-sub{
@@ -87,30 +81,40 @@ canvas{
   text-shadow:0 0 10px rgba(170,130,255,0.6);
 }
 
+.overlay-content{
+  position:relative;
+  max-width:90%;
+  text-align:center;
+  padding:1.5rem;
+  z-index:5;
+}
+
 /* Buttons */
 .btn{
   margin-top:2rem;
   padding:0.9rem 2.8rem;
   border-radius:999px;
   border:1px solid rgba(255,255,255,0.35);
-  background:radial-gradient(circle at 20% 0%,rgba(255,255,255,0.15),rgba(40,0,50,0.9));
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,0.14),rgba(40,0,50,0.92));
   color:#ffeef7;
-  font-size:1rem;
-  letter-spacing:0.2em;
+  font-size:0.95rem;
+  letter-spacing:0.18em;
   text-transform:uppercase;
   cursor:pointer;
   outline:none;
   box-shadow:
-     0 0 15px rgba(255,200,255,0.5),
-     0 0 35px rgba(110,130,255,0.7);
+    0 0 12px rgba(255,200,255,0.5),
+    0 0 30px rgba(110,130,255,0.7);
   position:relative;
   overflow:hidden;
+  transition:transform 0.12s ease,box-shadow 0.12s ease;
 }
 .btn::before{
   content:"";
   position:absolute;
   inset:0;
-  background:linear-gradient(120deg,rgba(255,255,255,0.3),transparent,rgba(255,255,255,0.05));
+  background:linear-gradient(120deg,rgba(255,255,255,0.4),transparent,rgba(255,255,255,0.12));
   opacity:0;
   transform:translateX(-60%);
   transition:transform 0.7s ease,opacity 0.7s ease;
@@ -120,11 +124,23 @@ canvas{
   opacity:1;
   transform:translateX(60%);
 }
+.btn:hover{
+  box-shadow:
+    0 0 18px rgba(255,210,255,0.7),
+    0 0 40px rgba(120,150,255,0.9);
+}
 .btn:active{
-  transform:scale(0.97);
+  transform:scale(0.96);
 }
 
-/* Typewriter poem */
+.small-btn{
+  margin-top:0.5rem;
+  padding:0.55rem 1.6rem;
+  font-size:0.75rem;
+  opacity:0.8;
+}
+
+/* Poem */
 #poem-container{
   position:relative;
   max-width:90%;
@@ -138,9 +154,9 @@ canvas{
 .poem-line{
   opacity:0;
   transform:translateY(10px);
-  transition:opacity 0.7s ease,transform 0.7s ease;
+  transition:opacity 0.6s ease,transform 0.6s ease;
   font-size:clamp(0.95rem,2.1vw,1.18rem);
-  line-height:1.5;
+  line-height:1.55;
   color:#ffeef7;
   text-shadow:0 0 8px rgba(150,100,255,0.65);
   margin-bottom:0.2rem;
@@ -158,7 +174,7 @@ canvas{
   opacity:1;
 }
 
-/* Proposal scene */
+/* Proposal */
 #proposal-text{
   font-size:clamp(1.8rem,4.2vw,3.2rem);
   margin-bottom:2rem;
@@ -200,19 +216,17 @@ canvas{
   transform-origin:center;
 }
 
-/* Utility */
-.hidden{
-  display:none;
-}
-
-/* Responsive tweaks */
+/* Responsive */
 @media (max-width:600px){
   .overlay-content{
     padding:1rem;
   }
   .btn{
-    padding:0.8rem 1.8rem;
+    padding:0.8rem 1.9rem;
     font-size:0.8rem;
+  }
+  .small-btn{
+    padding:0.5rem 1.4rem;
   }
   #poem-container{
     padding:1rem 0.85rem 1.7rem;
@@ -222,43 +236,40 @@ canvas{
 </head>
 <body>
 <div id="app">
-
-  <!-- Scene 1: Cosmic stars intro -->
   <canvas id="star-canvas"></canvas>
   <canvas id="tulip-canvas"></canvas>
 
+  <!-- Scene 1 -->
   <div id="scene1" class="scene active">
     <div class="overlay-content">
       <div class="romantic-text" data-shadow="This isn’t a normal website…">This isn’t a normal website…</div>
       <div class="romantic-sub">it is a tiny universe made just for you</div>
       <button id="start-btn" class="btn">tap me</button>
       <div class="romantic-sub" style="margin-top:1.3rem;font-size:0.75rem;opacity:0.7;">If nothing happens, tap again or use the Continue below.</div>
-      <button id="fallback1" class="btn" style="margin-top:0.4rem;padding:0.55rem 1.6rem;font-size:0.7rem;opacity:0.8;">Continue</button>
+      <button id="fallback1" class="btn small-btn">Continue</button>
     </div>
   </div>
 
-  <!-- Scene 2: Tulip field -->
+  <!-- Scene 2 -->
   <div id="scene2" class="scene">
     <div class="overlay-content">
       <div class="romantic-text" id="tulip-title" data-shadow="Every tulip here remembers you">Every tulip here remembers you</div>
       <div class="romantic-sub">they have been practicing how to bloom when you arrive</div>
       <button id="continue-poem" class="btn">Continue</button>
-      <button id="fallback2" class="btn" style="margin-top:0.6rem;padding:0.55rem 1.6rem;font-size:0.7rem;opacity:0.85;">Continue</button>
+      <button id="fallback2" class="btn small-btn">Continue</button>
     </div>
   </div>
 
-  <!-- Scene 3: Poem -->
+  <!-- Scene 3 -->
   <div id="scene3" class="scene">
     <div class="overlay-content">
-      <div id="poem-container">
-        <!-- lines will be created dynamically -->
-      </div>
+      <div id="poem-container"></div>
       <button id="next-bouquet" class="btn" style="margin-top:1.6rem;">One last thing…</button>
-      <button id="fallback3" class="btn" style="margin-top:0.6rem;padding:0.55rem 1.6rem;font-size:0.7rem;opacity:0.85;">Continue</button>
+      <button id="fallback3" class="btn small-btn">Continue</button>
     </div>
   </div>
 
-  <!-- Scene 5: Bouquet animation & proposal -->
+  <!-- Scene 4 -->
   <div id="scene4" class="scene">
     <div class="overlay-content">
       <div class="romantic-text" id="proposal-text" data-shadow="Will you be my universe? 💫">Will you be my universe? 💫</div>
@@ -271,16 +282,12 @@ canvas{
   </div>
 
   <div id="ribbon"></div>
-
 </div>
 
 <script>
 (function(){
   "use strict";
 
-  /****
-   * Safe animation util
-   ****/
   function safe(fn){
     return function(){
       try{
@@ -291,9 +298,6 @@ canvas{
     };
   }
 
-  /****
-   * Scene handling
-   ****/
   const scenes=[
     document.getElementById("scene1"),
     document.getElementById("scene2"),
@@ -314,9 +318,6 @@ canvas{
     currentScene=index;
   }
 
-  /****
-   * Canvas and layout
-   ****/
   const starCanvas=document.getElementById("star-canvas");
   const tulipCanvas=document.getElementById("tulip-canvas");
   const starCtx=starCanvas.getContext("2d");
@@ -337,9 +338,7 @@ canvas{
   window.addEventListener("resize",safe(resize));
   resize();
 
-  /****
-   * Starfield
-   ****/
+  /* Starfield */
   let stars=[];
   function createStars(){
     stars.length=0;
@@ -380,32 +379,29 @@ canvas{
   });
   starLoop();
 
-  /****
-   * Tulip field
-   ****/
+  /* Tulip field */
   let tulips=[];
   const TULIP_COUNT_NEAR=20;
   const TULIP_COUNT_FAR=35;
 
   function createTulips(){
     tulips.length=0;
-    const baseY=H*0.65;
+    const baseY=H*0.72;
     function makeTulip(isNear){
-      const depth=isNear? (0.5+Math.random()*0.3) : (0.2+Math.random()*0.3);
-      const spread=W*1.3;
+      const depth=isNear? (0.5+Math.random()*0.3):(0.2+Math.random()*0.3);
+      const spread=W*1.2;
       const x=W/2 + (Math.random()*2-1)*spread*depth;
       const swayPhase=Math.random()*Math.PI*2;
-      const stemHeight=isNear? (120+Math.random()*80) : (70+Math.random()*60);
+      const stemHeight=isNear?(120+Math.random()*80):(70+Math.random()*60);
       const scale=depth*(isNear?1.1:0.7);
-      const y=baseY - stemHeight*scale;
+      const y=baseY-stemHeight*scale;
       return{
         x,y,depth,scale,
         baseY,
         stemHeight,
         swayPhase,
-        bloom:0,
-        bloomTarget:Math.random()*0.4+0.6,
-        id:Math.random()
+        bloom:0.3,
+        bloomTarget:Math.random()*0.4+0.6
       };
     }
     for(let i=0;i<TULIP_COUNT_FAR;i++) tulips.push(makeTulip(false));
@@ -413,15 +409,15 @@ canvas{
     tulips.sort((a,b)=>a.depth-b.depth);
   }
 
-  function drawSingleTulip(t, time){
+  function drawSingleTulip(t,time){
     const ctx=tulipCtx;
     const sway=Math.sin(time*0.0009 + t.swayPhase)*12*t.depth;
     const baseX=t.x+sway;
     const baseY=t.baseY;
 
     const shadowOffset=18*t.depth;
-    const shadowWidth=34*t.depth* t.scale;
-    const shadowHeight=10*t.depth* t.scale;
+    const shadowWidth=34*t.depth*t.scale;
+    const shadowHeight=10*t.depth*t.scale;
     const shadowAlpha=0.12+0.18*t.depth;
     const shadowGrad=ctx.createRadialGradient(baseX+shadowOffset,baseY,2,baseX+shadowOffset,baseY,shadowWidth);
     shadowGrad.addColorStop(0,"rgba(0,0,0,"+shadowAlpha.toFixed(3)+")");
@@ -479,15 +475,14 @@ canvas{
     const budScale=1.6*bloomProgress+0.3;
 
     ctx.translate(0,budY);
-    ctx.scale(budScale, budScale);
+    ctx.scale(budScale,budScale);
 
-    const petalBaseHeight=24;
-    const petalGradBase=ctx.createLinearGradient(0,-petalBaseHeight-30,0,petalBaseHeight);
+    const petalGradBase=ctx.createLinearGradient(0,-54,0,24);
     petalGradBase.addColorStop(0,"#ffeaf5");
     petalGradBase.addColorStop(0.4,"#ff8fbd");
     petalGradBase.addColorStop(1,"#c01153");
 
-    function drawPetal(angle, spread){
+    function drawPetal(angle,spread){
       ctx.save();
       ctx.rotate(angle*Math.PI/180);
       ctx.beginPath();
@@ -531,7 +526,6 @@ canvas{
     ctx.restore();
   }
 
-  let lastTulipTime=0;
   const tulipLoop=safe(function tulipLoopFn(ts){
     if(!ts) ts=performance.now();
     tulipCtx.clearRect(0,0,W,H);
@@ -547,22 +541,18 @@ canvas{
       const windFactor=0.00018;
       const ambientSway=Math.sin(ts*windFactor + t.swayPhase*1.3)*0.005;
       t.swayPhase+=ambientSway;
-      if(t.bloom < t.bloomTarget){
+      if(t.bloom<t.bloomTarget){
         t.bloom += (t.bloomTarget - t.bloom)*0.02;
       }
       drawSingleTulip(t,ts);
     }
-    lastTulipTime=ts;
     requestAnimationFrame(tulipLoopFn);
   });
   tulipLoop();
 
-  /****
-   * Web Audio API
-   ****/
+  /* Audio */
   let audioCtx=null;
   let masterGain=null;
-  let windNode=null;
   let heartbeatInterval=null;
 
   function initAudio(){
@@ -603,7 +593,6 @@ canvas{
     filter.connect(gain);
     gain.connect(masterGain);
     noise.start();
-    windNode=gain;
   }
 
   function startHeartbeat(){
@@ -683,14 +672,11 @@ canvas{
     playWhoosh(0.35);
   }
 
-  /****
-   * Particle dissolve
-   ****/
-  let particles=[];
+  /* Dissolve */
   function startDissolve(callback){
     playWhoosh(0.5);
     const count=120;
-    particles=[];
+    const particles=[];
     for(let i=0;i<count;i++){
       particles.push({
         x:W/2+(Math.random()*2-1)*W*0.45,
@@ -701,13 +687,12 @@ canvas{
         life:1+Math.random()*0.6
       });
     }
-    const startTime=performance.now();
+    const start=performance.now();
     const total=900;
 
     const loop=safe(function step(ts){
-      const t=(ts-startTime)/total;
+      const t=(ts-start)/total;
       if(t>=1){
-        particles=[];
         if(callback) callback();
         return;
       }
@@ -728,9 +713,7 @@ canvas{
     requestAnimationFrame(loop);
   }
 
-  /****
-   * Poem typing
-   ****/
+  /* Poem */
   const poemLines=[
 "Sometimes I think I fell for you",
 "before I even learned how falling works.",
@@ -766,7 +749,7 @@ canvas{
   function setupPoem(){
     poemContainer.innerHTML="";
     poemLineEls=[];
-    poemLines.forEach(text=>{
+    poemLines.forEach(()=>{
       const p=document.createElement("div");
       p.className="poem-line";
       poemContainer.appendChild(p);
@@ -798,7 +781,6 @@ canvas{
       chars.push(span);
     }
     p.classList.add("visible");
-
     playSoftWhooshShort();
     triggerTulipBloomWave();
 
@@ -828,19 +810,16 @@ canvas{
     showNext();
   }
 
-  /****
-   * Bouquet formation
-   ****/
+  /* Bouquet & ribbon */
   function animateBouquetAndThenProposal(){
     playWhoosh(0.7);
     const centerX=W/2;
     const centerY=H*0.58;
+    const ribbon=document.getElementById("ribbon");
+    ribbon.style.transform="translate(-50%,-10%) scale(0)";
 
     const start=performance.now();
     const duration=1500;
-
-    const ribbon=document.getElementById("ribbon");
-    ribbon.style.transform="translate(-50%,-10%) scale(0)";
 
     const loop=safe(function step(ts){
       const t=Math.min(1,(ts-start)/duration);
@@ -859,7 +838,7 @@ canvas{
         tp.bloomTarget=1;
       });
 
-      const ribbonScale = ease;
+      const ribbonScale=ease;
       ribbon.style.transform="translate(-50%,-10%) scale("+ribbonScale.toFixed(3)+")";
       const wave=Math.sin(ts*0.006)*6*(1-ease*0.8);
       ribbon.style.borderRadius=(30+Math.abs(wave)).toFixed(1)+"px";
@@ -875,9 +854,7 @@ canvas{
     requestAnimationFrame(loop);
   }
 
-  /****
-   * Falling petals on YES
-   ****/
+  /* Petal rain */
   function spawnPetal(){
     const petal=document.createElement("div");
     petal.className="petal";
@@ -888,18 +865,16 @@ canvas{
 
     const fallDuration=7000+Math.random()*4000;
     const drift=(Math.random()*2-1)*120;
-
     document.body.appendChild(petal);
     const start=performance.now();
 
     const loop=safe(function step(ts){
       const t=Math.min(1,(ts-start)/fallDuration);
-      const ease=t;
-      const x=startX + drift*ease + Math.sin(ts*0.004 + drift)*14;
-      const y=startY + (H+80)*ease;
+      const x=startX + drift*t + Math.sin(ts*0.004 + drift)*14;
+      const y=startY + (H+80)*t;
       petal.style.left=x+"px";
       petal.style.top=y+"px";
-      petal.style.transform="rotate("+ (t*720 + drift) +"deg)";
+      petal.style.transform="rotate("+(t*720 + drift)+"deg)";
       petal.style.opacity=(1-t).toFixed(3);
       if(t<1){
         requestAnimationFrame(step);
@@ -917,9 +892,7 @@ canvas{
     }
   }
 
-  /****
-   * Buttons & flow
-   ****/
+  /* Buttons and flow */
   const startBtn=document.getElementById("start-btn");
   const fallback1=document.getElementById("fallback1");
   const contPoemBtn=document.getElementById("continue-poem");
@@ -978,12 +951,10 @@ canvas{
     playChime();
     startPetalRain();
     finalMessage.textContent="You were always my favorite galaxy 🌙🌷";
-    finalMessage.setAttribute("data-shadow","You were always my favorite galaxy 🌙🌷");
-    finalMessage.className="romantic-sub";
   }));
 
   let noMoveCount=0;
-  noBtn.addEventListener("click",safe(function(e){
+  noBtn.addEventListener("click",safe(function(){
     noMoveCount++;
     const rect=noBtn.getBoundingClientRect();
     const offsetX=(Math.random()*2-1)*120;
@@ -993,10 +964,6 @@ canvas{
     noBtn.style.position="fixed";
     noBtn.style.left=newLeft+"px";
     noBtn.style.top=newTop+"px";
-    if(noMoveCount>2){
-      // after two playful moves, keep it still
-      noBtn.style.pointerEvents="auto";
-    }
   }));
 
   document.addEventListener("click",safe(function(){
@@ -1005,8 +972,9 @@ canvas{
     }
   }));
 
+  createStars();
+  createTulips();
   scheduleAutoAdvance(1);
-
 })();
 </script>
 </body>
