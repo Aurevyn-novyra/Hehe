@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Universe?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #ff006e;
+            --secondary: #8338ec;
+            --accent: #ffbe0b;
+            --dark-bg: #0f0e17;
+            --light-text: #ffffff;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        /* SCENE CONTAINERS */
+        .scene {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .scene.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        #scene-opening,
+        #scene-tulips,
+        #scene-poem,
+        #scene-proposal,
+        #scene-result {
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--dark-bg);
+        }
+
+        /* OPENING SCENE */
+        .opening-text {
+            font-size: 2rem;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInText 2s ease 3s forwards;
+            max-width: 90%;
+        }
+
+        @keyframes fadeInText {
+            to { opacity: 1; }
+        }
+
+        .pulse-button {
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0;
+            animation: pulseGlow 2s ease-in-out 5s infinite forwards;
+            box-shadow: 0 0 20px rgba(255, 0, 110, 0.5);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                opacity: 0.8;
+                box-shadow: 0 0 20px rgba(255, 0, 110, 0.5),
+                           0 0 40px rgba(131, 56, 236, 0.3);
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 40px rgba(255, 0, 110, 0.8),
+                           0 0 60px rgba(131, 56, 236, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        .pulse-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px rgba(255, 0, 110, 1),
+                       0 0 80px rgba(131, 56, 236, 0.8);
+        }
+
+        .pulse-button:active {
+            transform: scale(0.95);
+        }
+
+        /* TULIP SCENE */
+        #tulipCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* POEM SCENE */
+        #scene-poem {
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .poem-container {
+            max-width: 800px;
+            line-height: 2;
+            font-size: 1.1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .poem-line {
+            opacity: 0;
+            animation: typewriterReveal 0.05s steps(40) forwards;
+            min-height: 1.8em;
+            display: inline-block;
+            margin-bottom: 0.5em;
+            position: relative;
+        }
+
+        @keyframes typewriterReveal {
+            to { opacity: 1; }
+        }
+
+        .star-connect {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: white;
+            opacity: 0;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+        }
+
+        /* PROPOSAL SCENE */
+        .proposal-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .yes-button, .no-button {
+            padding: 15px 50px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .yes-button {
+            background: linear-gradient(135deg, #00ff88, #00ffcc);
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .yes-button:hover {
+            box-shadow: 0 0 40px rgba(0, 255, 136, 1);
+            transform: scale(1.1);
+        }
+
+        .yes-button.shake {
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) scale(1.1); }
+            25% { transform: translateX(-5px) scale(1.1); }
+            75% { transform: translateX(5px) scale(1.1); }
+        }
+
+        .no-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .no-button:hover {
+            transform: translate(20px, -20px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* RESULT SCENE */
+        .result-text {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            animation: fadeIn 1.5s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* CANVAS ELEMENTS */
+        canvas {
+            display: block;
+        }
+
+        /* GLITCH EFFECT */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .glitch-effect {
+            animation: glitch 0.3s ease;
+        }
+
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            .opening-text {
+                font-size: 1.5rem;
+            }
+
+            .proposal-text {
+                font-size: 1.8rem;
+                padding: 20px;
+            }
+
+            .result-text {
+                font-size: 2rem;
+                padding: 20px;
+            }
+
+            .poem-container {
+                font-size: 0.95rem;
+                line-height: 1.8;
+            }
+
+            .button-group {
+                gap: 10px;
+            }
+
+            .yes-button, .no-button {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+
+        /* HIDDEN STATE */
+        .hidden {
+            display: none !important;
+        }
+
+        /* PETAL STYLES */
+        .petal {
+            position: fixed;
+            pointer-events: none;
+        }
+
+        /* SPARKLE STYLES */
+        .sparkle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: sparkleFloat 2s ease-out forwards;
+        }
+
+        @keyframes sparkleFloat {
+            to {
+                transform: translateY(-100px) translateX(50px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- OPENING SCENE -->
+    <div id="scene-opening" class="scene active">
+        <div class="opening-text">This isn't a normal website...</div>
+        <button id="openingButton" class="pulse-button">tap me</button>
+    </div>
+
+    <!-- TULIP SCENE -->
+    <div id="scene-tulips" class="scene">
+        <canvas id="tulipCanvas"></canvas>
+    </div>
+
+    <!-- POEM SCENE -->
+    <div id="scene-poem" class="scene">
+        <div class="poem-container" id="poemContainer"></div>
+    </div>
+
+    <!-- PROPOSAL SCENE -->
+    <div id="scene-proposal" class="scene">
+        <div class="proposal-text">Will you be my universe? 💫</div>
+        <div class="button-group">
+            <button id="yesButton" class="yes-button">YES</button>
+            <button id="noButton" class="no-button">NO</button>
+        </div>
+    </div>
+
+    <!-- RESULT SCENE -->
+    <div id="scene-result" class="scene">
+        <div class="result-text">You were always my favorite galaxy 🌙🌷</div>
+    </div>
+
+    <script>
+        // ======================================
+        // AUDIO CONTEXT & SOUND SYNTHESIS
+        // ======================================
+        
+        let audioContext;
+        let ambientOscillator;
+        let ambientGain;
+        let heartbeatGain;
+
+        function initAudio() {
+            if (audioContext) return;
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playHeartbeat() {
+            if (!audioContext) initAudio();
+            
+            const now = audioContext.currentTime;
+            const heartbeatFrequency = 60;
+            
+            // Create two quick pulses for heartbeat
+            for (let i = 0; i < 2; i++) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.frequency.value = heartbeatFrequency + (i * 20);
+                osc.type = 'sine';
+                
+                gain.gain.setValueAtTime(0.1, now + (i * 0.08));
+                gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.08) + 0.1);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.start(now + (i * 0.08));
+                osc.stop(now + (i * 0.08) + 0.1);
+            }
+        }
+
+        function playHeartbeatLoop() {
+            if (!audioContext) return;
+            playHeartbeat();
+            setTimeout(playHeartbeatLoop, 1500);
+        }
+
+        function playAmbientMusic() {
+            if (!audioContext) initAudio();
+            
+            // Create ambient pad using multiple oscillators
+            const frequencies = [110, 165, 220, 330]; // A2, E3, A3, E4
+            
+            frequencies.forEach(freq => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+                gain.gain.setValueAtTime(0.03, audioContext.currentTime);
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.start();
+            });
+        }
+
+        function playWhoosh() {
+            if (!audioContext) initAudio();
+            
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.frequency.setValueAtTime(200, now);
+            osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+            osc.type = 'sine';
+            
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
+
+        function playBloom() {
+            if (!audioContext) initAudio();
+            
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.frequency.setValueAtTime(400, now);
+            osc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+            osc.type = 'sine';
+            
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.exponentialRampToValueAtTime(0, now + 0.2);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start(now);
+            osc.stop(now + 0.2);
+        }
+
+        function playSparkle() {
+            if (!audioContext) initAudio();
+            
+            const now = audioContext.currentTime;
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            osc.frequency.setValueAtTime(800 + Math.random() * 400, now);
+            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            osc.type = 'square';
+            
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0, now + 0.1);
+            
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            osc.start(now);
+            osc.stop(now + 0.1);
+        }
+
+        // ======================================
+        // SCENE MANAGEMENT
+        // ======================================
+
+        function switchScene(fromId, toId) {
+            const from = document.getElementById(fromId);
+            const to = document.getElementById(toId);
+            
+            if (from) {
+                from.classList.remove('active');
+            }
+            if (to) {
+                to.classList.add('active');
+            }
+        }
+
+        // ======================================
+        // CANVAS ANIMATIONS
+        // ======================================
+
+        // Star field for opening
+        function drawStarField(canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const stars = [];
+            const starCount = 80;
+
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    opacity: Math.random() * 0.5 + 0.3,
+                    twinkleSpeed: Math.random() * 0.05
+                });
+            }
+
+            let animationFrame = 0;
+            
+            function animate() {
+                ctx.fillStyle = 'rgba(15, 14, 23, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                stars.forEach(star => {
+                    star.opacity += star.twinkleSpeed;
+                    if (star.opacity > 1 || star.opacity < 0.2) {
+                        star.twinkleSpeed *= -1;
+                    }
+
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Glow effect
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${star.opacity * 0.3})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius + 3, 0, Math.PI * 2);
+                    ctx.stroke();
+                });
+
+                animationFrame++;
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        // Tulip scene with procedural drawing
+        function drawTulipScene() {
+            const canvas = document.getElementById('tulipCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const tulips = [];
+            const tulipCount = 50;
+
+            // Initialize tulips
+            for (let i = 0; i < tulipCount; i++) {
+                tulips.push({
+                    x: Math.random() * canvas.width,
+                    y: canvas.height,
+                    height: Math.random() * 150 + 100,
+                    color: `hsl(${Math.random() * 60 + 330}, 100%, ${Math.random() * 40 + 40}%)`,
+                    petalCount: Math.floor(Math.random() * 3) + 3,
+                    swayAmount: Math.random() * 20,
+                    swaySpeed: Math.random() * 0.02 + 0.005,
+                    time: Math.random() * Math.PI * 2,
+                    bloomProgress: 0,
+                    bloomSpeed: Math.random() * 0.01 + 0.005
+                });
+            }
+
+            // Draw cosmic background
+            const stars = [];
+            for (let i = 0; i < 100; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height * 0.7,
+                    size: Math.random() * 2,
+                    opacity: Math.random() * 0.7
+                });
+            }
+
+            let animationFrame = 0;
+
+            function drawTulip(x, y, height, color, petals, sway, bloom) {
+                ctx.save();
+                ctx.translate(x + sway, y);
+
+                // Stem
+                ctx.strokeStyle = `hsla(120, 60%, 40%, 0.7)`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(5, -height * 0.5, -3, -height * 0.8, 0, -height);
+                ctx.stroke();
+
+                // Petals
+                const petalHeight = height * (0.3 + bloom * 0.2);
+                const petalWidth = 15 * (1 + bloom * 0.3);
+
+                for (let i = 0; i < petals; i++) {
+                    const angle = (Math.PI * 2 * i) / petals;
+                    ctx.save();
+                    ctx.rotate(angle);
+                    
+                    // Draw petal
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.ellipse(0, -petalHeight * 0.5, petalWidth * bloom, petalHeight, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                }
+
+                // Center stamen
+                ctx.fillStyle = 'rgba(255, 200, 0, 0.8)';
+                ctx.beginPath();
+                ctx.arc(0, -height * 0.8, 3 + bloom * 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            function animate() {
+                // Clear with semi-transparent background
+                ctx.fillStyle = 'rgba(15, 14, 23, 0.95)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw stars
+                stars.forEach(star => {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity * 0.5 + Math.sin(animationFrame * 0.02) * 0.3})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Update and draw tulips
+                tulips.forEach(tulip => {
+                    tulip.time += tulip.swaySpeed;
+                    tulip.bloomProgress = Math.min(tulip.bloomProgress + tulip.bloomSpeed, 1);
+                    const sway = Math.sin(tulip.time) * tulip.swayAmount;
+
+                    drawTulip(
+                        tulip.x,
+                        tulip.y - tulip.height,
+                        tulip.height,
+                        tulip.color,
+                        tulip.petalCount,
+                        sway,
+                        tulip.bloomProgress
+                    );
+                });
+
+                animationFrame++;
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+
+        // ======================================
+        // POEM DISPLAY WITH EFFECTS
+        // ======================================
+
+        const poemText = `Sometimes I think I fell for you
+before I even learned how falling works.
+My words trip over themselves..
+And as I said earlier.. you're like a Luminous Singularity
+which's parallel yet coincidently intersecting...
+Like constellations shuffled in a hurry...
+Orion losing its belt..
+Cassiopeia sitting upside down..
+and whole sky is asking "Why is she the only one shining this bright?"
+And I swear ... 
+every time i try to explain what you mean to me.. I fumble..I'm scared...
+and my heart chooses Your tulips instead of sentences 
+petals arranged in a wrong order.. yet beautiful..
+Colors mixing where they shouldn't yet somehow looking eternal..
+and it's strange how You make the universe feel like a misprinted bouquet..
+Galaxies scribbled over with your name..
+planets orbiting a little too close..
+a pull like the Black hole..
+Like they too forgot their distance.
+And me? I'm jst a boy holding a bouquet thinking maybe if I say it wrong enough times
+you Might hear the truth hidden between the mistakes
+That in every star's cold shimmer and every tulip's quite softness
+i keep finding you 
+not perfectly..
+not clearly 
+but completely...`;
+
+        function displayPoem() {
+            const container = document.getElementById('poemContainer');
+            container.innerHTML = '';
+            
+            const lines = poemText.split('\n');
+            let lineIndex = 0;
+
+            function displayNextLine() {
+                if (lineIndex < lines.length) {
+                    const line = lines[lineIndex];
+                    const lineElement = document.createElement('div');
+                    lineElement.className = 'poem-line';
+                    lineElement.textContent = line || '\u00A0';
+                    
+                    // Add animation delay
+                    lineElement.style.animationDelay = '0s';
+                    
+                    container.appendChild(lineElement);
+                    
+                    // Play sound effects
+                    if (lineIndex % 3 === 0) {
+                        playBloom();
+                    }
+                    if (lineIndex % 5 === 0) {
+                        playSparkle();
+                    }
+
+                    lineIndex++;
+                    setTimeout(displayNextLine, 300);
+                } else {
+                    // Show "One last thing" button after poem
+                    setTimeout(() => {
+                        const button = document.createElement('button');
+                        button.className = 'pulse-button';
+                        button.textContent = 'One last thing...';
+                        button.id = 'poemButton';
+                        button.style.marginTop = '40px';
+                        button.onclick = () => {
+                            playWhoosh();
+                            showProposalScene();
+                        };
+                        container.appendChild(button);
+                    }, 500);
+                }
+            }
+
+            displayNextLine();
+        }
+
+        // ======================================
+        // PROPOSAL SCENE WITH BOUQUET
+        // ======================================
+
+        function showProposalScene() {
+            switchScene('scene-poem', 'scene-proposal');
+            playWhoosh();
+            animateBouquet();
+        }
+
+        function animateBouquet() {
+            // Create floating petals from edges to center
+            const colors = ['#ff006e', '#8338ec', '#ffbe0b'];
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    
+                    const startX = Math.random() > 0.5 ? 0 : window.innerWidth;
+                    const startY = Math.random() * window.innerHeight;
+                    const endX = window.innerWidth / 2;
+                    const endY = window.innerHeight / 2;
+                    
+                    petal.style.cssText = `
+                        left: ${startX}px;
+                        top: ${startY}px;
+                        width: 10px;
+                        height: 10px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        border-radius: 50%;
+                        opacity: 0.8;
+                        animation: moveToCenter 2s ease-in forwards;
+                    `;
+                    
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @keyframes moveToCenter {
+                            to {
+                                left: ${endX}px;
+                                top: ${endY}px;
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    document.body.appendChild(petal);
+                    
+                    setTimeout(() => petal.remove(), 2000);
+                }, i * 30);
+            }
+
+            playBloom();
+        }
+
+        // ======================================
+        // YES/NO BUTTON HANDLERS
+        // ======================================
+
+        document.getElementById('yesButton').addEventListener('click', () => {
+            playSparkle();
+            document.getElementById('yesButton').classList.add('shake');
+            setTimeout(() => {
+                switchScene('scene-proposal', 'scene-result');
+                showResultScene();
+            }, 300);
+        });
+
+        document.getElementById('noButton').addEventListener('click', (e) => {
+            const btn = e.target;
+            const randomX = Math.random() * 200 - 100;
+            const randomY = Math.random() * 200 - 100;
+            btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+        });
+
+        // ======================================
+        // RESULT SCENE WITH EFFECTS
+        // ======================================
+
+        function showResultScene() {
+            // Accelerate heartbeat
+            playHeartbeat();
+            playHeartbeat();
+            
+            // Create rose petals
+            const resultContainer = document.getElementById('scene-result');
+            
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const petal = document.createElement('div');
+                    const startX = Math.random() * window.innerWidth;
+                    const startY = -20;
+                    
+                    petal.style.cssText = `
+                        position: fixed;
+                        left: ${startX}px;
+                        top: ${startY}px;
+                        width: 15px;
+                        height: 15px;
+                        background: #ff006e;
+                        border-radius: 50%;
+                        opacity: 0.8;
+                        pointer-events: none;
+                        animation: fallPetal 3s ease-in forwards;
+                        z-index: 5;
+                    `;
+                    
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @keyframes fallPetal {
+                            to {
+                                top: ${window.innerHeight}px;
+                                opacity: 0;
+                                transform: rotate(360deg);
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                    
+                    document.body.appendChild(petal);
+                    setTimeout(() => petal.remove(), 3000);
+                }, i * 40);
+            }
+
+            // Full screen glow
+            const glow = document.createElement('div');
+            glow.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle, rgba(255, 0, 110, 0.2) 0%, transparent 70%);
+                pointer-events: none;
+                animation: glowPulse 2s ease-in-out infinite;
+                z-index: 1;
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes glowPulse {
+                    0%, 100% { opacity: 0.5; }
+                    50% { opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            document.body.appendChild(glow);
+            setTimeout(() => glow.remove(), 5000);
+        }
+
+        // ======================================
+        // OPENING BUTTON HANDLER
+        // ======================================
+
+        document.getElementById('openingButton').addEventListener('click', () => {
+            playWhoosh();
+            
+            // Glitch effect
+            const scene = document.getElementById('scene-opening');
+            scene.classList.add('glitch-effect');
+            
+            setTimeout(() => {
+                switchScene('scene-opening', 'scene-tulips');
+                drawTulipScene();
+                
+                // After tulips show for 4 seconds, move to poem
+                setTimeout(() => {
+                    switchScene('scene-tulips', 'scene-poem');
+                    displayPoem();
+                }, 4000);
+            }, 300);
+        });
+
+        // ======================================
+        // INITIALIZATION
+        // ======================================
+
+        window.addEventListener('click', () => {
+            if (!audioContext) initAudio();
+        });
+
+        window.addEventListener('touchstart', () => {
+            if (!audioContext) initAudio();
+        });
+
+        // Start background ambient music after first user interaction
+        let audioStarted = false;
+        function startAudio() {
+            if (!audioStarted) {
+                initAudio();
+                playAmbientMusic();
+                playHeartbeatLoop();
+                audioStarted = true;
+            }
+        }
+
+        document.addEventListener('click', startAudio);
+        document.addEventListener('touchstart', startAudio);
+
+        // Responsive canvas resize
+        window.addEventListener('resize', () => {
+            // Canvas will be redrawn on next animation frame
+        });
+
+        // Prevent scrolling on mobile
+        document.body.style.overflow = 'hidden';
+    </script>
+</body>
+</html>
