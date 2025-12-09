@@ -1,981 +1,844 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Will You Be My Universe?</title>
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<style>
-*,
-*::before,
-*::after{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-html,body{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#03040b;
-  color:#fdf7ff;
-  font-family:Georgia,"Times New Roman",serif;
-}
-body{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#app{
-  position:relative;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:radial-gradient(circle at 20% 0%,#222a4a 0%,#03040b 55%,#000000 100%);
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Universe for You</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Scenes */
-.scene{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  opacity:0;
-  pointer-events:none;
-  transition:opacity 0.9s ease;
-}
-.scene.active{
-  opacity:1;
-  pointer-events:auto;
-}
-canvas{
-  position:absolute;
-  inset:0;
-}
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: Georgia, serif;
+            background: #000;
+            position: relative;
+        }
 
-/* Romantic text */
-.romantic-text{
-  font-size:clamp(1.6rem,4vw,2.8rem);
-  letter-spacing:0.14em;
-  color:#ffeef7;
-  text-shadow:
-    0 0 4px rgba(255,200,240,0.6),
-    0 0 14px rgba(174,129,255,0.9),
-    0 0 34px rgba(100,156,255,0.8);
-  filter:blur(0.15px);
-  position:relative;
-}
-.romantic-text::before{
-  content:attr(data-shadow);
-  position:absolute;
-  inset:0.03em 0 0 0.06em;
-  color:rgba(255,255,255,0.18);
-  mix-blend-mode:screen;
-}
-.romantic-sub{
-  margin-top:0.8rem;
-  font-size:clamp(0.9rem,2.1vw,1.1rem);
-  letter-spacing:0.18em;
-  color:#f2d9ff;
-  text-shadow:0 0 10px rgba(170,130,255,0.6);
-}
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+        }
 
-.overlay-content{
-  position:relative;
-  max-width:90%;
-  text-align:center;
-  padding:1.5rem;
-  z-index:5;
-}
+        .scene.active {
+            opacity: 1;
+            pointer-events: all;
+        }
 
-/* Buttons */
-.btn{
-  margin-top:2rem;
-  padding:0.9rem 2.8rem;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,0.35);
-  background:
-    radial-gradient(circle at 20% 0%,rgba(255,255,255,0.14),rgba(40,0,50,0.92));
-  color:#ffeef7;
-  font-size:0.95rem;
-  letter-spacing:0.18em;
-  text-transform:uppercase;
-  cursor:pointer;
-  outline:none;
-  box-shadow:
-    0 0 12px rgba(255,200,255,0.5),
-    0 0 30px rgba(110,130,255,0.7);
-  position:relative;
-  overflow:hidden;
-  transition:transform 0.12s ease,box-shadow 0.12s ease;
-}
-.btn::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(120deg,rgba(255,255,255,0.4),transparent,rgba(255,255,255,0.12));
-  opacity:0;
-  transform:translateX(-60%);
-  transition:transform 0.7s ease,opacity 0.7s ease;
-}
-.btn:hover::before,
-.btn:active::before{
-  opacity:1;
-  transform:translateX(60%);
-}
-.btn:hover{
-  box-shadow:
-    0 0 18px rgba(255,210,255,0.7),
-    0 0 40px rgba(120,150,255,0.9);
-}
-.btn:active{
-  transform:scale(0.96);
-}
+        #starCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
 
-.small-btn{
-  margin-top:0.5rem;
-  padding:0.55rem 1.6rem;
-  font-size:0.75rem;
-  opacity:0.8;
-}
+        .cosmic-text {
+            font-size: clamp(24px, 5vw, 48px);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(147,112,219,0.3);
+            letter-spacing: 2px;
+            animation: textGlow 3s ease-in-out infinite;
+            z-index: 10;
+        }
 
-/* Poem */
-#poem-container{
-  position:relative;
-  max-width:90%;
-  width:750px;
-  padding:1.4rem 1.2rem 2.2rem;
-  margin-inline:auto;
-  border-radius:18px;
-  background:radial-gradient(circle at 0 0,rgba(255,255,255,0.06),transparent 60%);
-  box-shadow:0 25px 55px rgba(0,0,0,0.75);
-}
-.poem-line{
-  opacity:0;
-  transform:translateY(10px);
-  transition:opacity 0.6s ease,transform 0.6s ease;
-  font-size:clamp(0.95rem,2.1vw,1.18rem);
-  line-height:1.55;
-  color:#ffeef7;
-  text-shadow:0 0 8px rgba(150,100,255,0.65);
-  margin-bottom:0.2rem;
-  white-space:pre-wrap;
-}
-.poem-line.visible{
-  opacity:1;
-  transform:translateY(0);
-}
-.poem-line span.char{
-  opacity:0;
-  display:inline-block;
-}
-.poem-line span.char.show{
-  opacity:1;
-}
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255,255,255,0.5), 0 0 40px rgba(147,112,219,0.3); }
+            50% { text-shadow: 0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(147,112,219,0.6); }
+        }
 
-/* Proposal */
-#proposal-text{
-  font-size:clamp(1.8rem,4.2vw,3.2rem);
-  margin-bottom:2rem;
-}
-.proposal-buttons{
-  display:flex;
-  gap:1.4rem;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-#yes-btn,#no-btn{
-  min-width:120px;
-}
+        .glow-button {
+            padding: 20px 50px;
+            font-size: clamp(18px, 4vw, 28px);
+            color: #fff;
+            background: linear-gradient(135deg, rgba(147,112,219,0.3), rgba(138,43,226,0.3));
+            border: 2px solid rgba(147,112,219,0.8);
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 40px;
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+            font-family: Georgia, serif;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(147,112,219,0.5);
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
 
-/* Falling petals */
-.petal{
-  position:fixed;
-  width:14px;
-  height:26px;
-  border-radius:60% 60% 60% 60%;
-  pointer-events:none;
-  background:radial-gradient(circle at 20% 0%,#ffe6f0 0%,#ff79b6 40%,#d8005a 100%);
-  box-shadow:0 0 12px rgba(255,120,200,0.8);
-  opacity:0.85;
-  z-index:50;
-}
+        @keyframes buttonPulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(147,112,219,0.5); transform: scale(1); }
+            50% { box-shadow: 0 0 50px rgba(147,112,219,0.8); transform: scale(1.05); }
+        }
 
-/* Bouquet ribbon */
-#ribbon{
-  position:absolute;
-  width:90px;
-  height:40px;
-  background:linear-gradient(90deg,#ff6b99,#ff99c2,#ff6b99);
-  border-radius:35px;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-10%) scale(0);
-  box-shadow:0 0 16px rgba(255,120,180,0.9);
-  transform-origin:center;
-}
+        .glow-button:hover {
+            background: linear-gradient(135deg, rgba(147,112,219,0.5), rgba(138,43,226,0.5));
+            transform: scale(1.1);
+        }
 
-/* Responsive */
-@media (max-width:600px){
-  .overlay-content{
-    padding:1rem;
-  }
-  .btn{
-    padding:0.8rem 1.9rem;
-    font-size:0.8rem;
-  }
-  .small-btn{
-    padding:0.5rem 1.4rem;
-  }
-  #poem-container{
-    padding:1rem 0.85rem 1.7rem;
-  }
-}
-</style>
+        .glow-button:active {
+            transform: scale(0.95);
+        }
+
+        #tulipCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .poem-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .poem-line {
+            font-size: clamp(18px, 3.5vw, 32px);
+            color: #fff;
+            text-align: center;
+            margin: 15px 0;
+            opacity: 0;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .poem-line.visible {
+            animation: typeIn 1.5s ease forwards;
+        }
+
+        @keyframes typeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .continue-button {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 18px 45px;
+            font-size: clamp(16px, 3vw, 24px);
+            color: #fff;
+            background: linear-gradient(135deg, rgba(255,105,180,0.4), rgba(255,182,193,0.4));
+            border: 2px solid rgba(255,105,180,0.8);
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 101;
+            font-family: Georgia, serif;
+            letter-spacing: 1px;
+            box-shadow: 0 0 30px rgba(255,105,180,0.5);
+            transition: all 0.3s ease;
+        }
+
+        .continue-button:hover {
+            background: linear-gradient(135deg, rgba(255,105,180,0.6), rgba(255,182,193,0.6));
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        .bouquet-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 400px;
+            z-index: 50;
+        }
+
+        .proposal-text {
+            font-size: clamp(28px, 6vw, 56px);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            text-shadow: 0 0 30px rgba(255,182,193,0.8), 0 0 50px rgba(255,105,180,0.5);
+            letter-spacing: 2px;
+            z-index: 10;
+            margin-bottom: 40px;
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(1.05); }
+            20%, 40% { transform: scale(1); }
+        }
+
+        .choice-buttons {
+            display: flex;
+            gap: 30px;
+            z-index: 10;
+        }
+
+        .yes-button, .no-button {
+            padding: 20px 50px;
+            font-size: clamp(20px, 4vw, 32px);
+            color: #fff;
+            border: 2px solid;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(255,255,255,0.3);
+        }
+
+        .yes-button {
+            background: linear-gradient(135deg, rgba(50,205,50,0.4), rgba(144,238,144,0.4));
+            border-color: rgba(50,205,50,0.8);
+        }
+
+        .yes-button:hover {
+            background: linear-gradient(135deg, rgba(50,205,50,0.6), rgba(144,238,144,0.6));
+            transform: scale(1.1);
+        }
+
+        .no-button {
+            background: linear-gradient(135deg, rgba(255,99,71,0.4), rgba(255,160,122,0.4));
+            border-color: rgba(255,99,71,0.8);
+            position: relative;
+        }
+
+        .no-button:hover {
+            background: linear-gradient(135deg, rgba(255,99,71,0.6), rgba(255,160,122,0.6));
+        }
+
+        .final-text {
+            font-size: clamp(24px, 5vw, 48px);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            text-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 50px rgba(255,182,193,0.5);
+            letter-spacing: 2px;
+            z-index: 10;
+            animation: finalGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes finalGlow {
+            0%, 100% { text-shadow: 0 0 30px rgba(255,215,0,0.8), 0 0 50px rgba(255,182,193,0.5); }
+            50% { text-shadow: 0 0 50px rgba(255,215,0,1), 0 0 80px rgba(255,182,193,0.8); }
+        }
+
+        .petal {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(ellipse at center, #ff69b4 0%, #ffb6c1 50%, transparent 70%);
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes petalFall {
+            0% { 
+                opacity: 1;
+                transform: translateY(0) rotate(0deg);
+            }
+            100% { 
+                opacity: 0;
+                transform: translateY(100vh) rotate(720deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .poem-line {
+                font-size: 18px;
+            }
+            .choice-buttons {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-  <canvas id="star-canvas"></canvas>
-  <canvas id="tulip-canvas"></canvas>
-
-  <!-- Scene 1 -->
-  <div id="scene1" class="scene active">
-    <div class="overlay-content">
-      <div class="romantic-text" data-shadow="This isn’t a normal website…">This isn’t a normal website…</div>
-      <div class="romantic-sub">it is a tiny universe made just for you</div>
-      <button id="start-btn" class="btn">tap me</button>
-      <div class="romantic-sub" style="margin-top:1.3rem;font-size:0.75rem;opacity:0.7;">If nothing happens, tap again or use the Continue below.</div>
-      <button id="fallback1" class="btn small-btn">Continue</button>
+    <!-- Scene 1: Cosmic Intro -->
+    <div class="scene active" id="scene1">
+        <canvas id="starCanvas"></canvas>
+        <div class="cosmic-text">This isn't a normal website…</div>
+        <button class="glow-button" onclick="transitionToScene2()">tap me</button>
     </div>
-  </div>
 
-  <!-- Scene 2 -->
-  <div id="scene2" class="scene">
-    <div class="overlay-content">
-      <div class="romantic-text" id="tulip-title" data-shadow="Every tulip here remembers you">Every tulip here remembers you</div>
-      <div class="romantic-sub">they have been practicing how to bloom when you arrive</div>
-      <button id="continue-poem" class="btn">Continue</button>
-      <button id="fallback2" class="btn small-btn">Continue</button>
+    <!-- Scene 2: Tulip Field -->
+    <div class="scene" id="scene2">
+        <canvas id="tulipCanvas"></canvas>
+        <button class="continue-button" onclick="startPoem()">Continue</button>
     </div>
-  </div>
 
-  <!-- Scene 3 -->
-  <div id="scene3" class="scene">
-    <div class="overlay-content">
-      <div id="poem-container"></div>
-      <button id="next-bouquet" class="btn" style="margin-top:1.6rem;">One last thing…</button>
-      <button id="fallback3" class="btn small-btn">Continue</button>
+    <!-- Scene 3: Poem -->
+    <div class="scene" id="scene3">
+        <canvas id="tulipCanvas2"></canvas>
+        <div class="poem-container" id="poemContainer"></div>
+        <button class="continue-button" id="poemContinue" style="opacity: 0;" onclick="showBouquetTransition()">One last thing…</button>
     </div>
-  </div>
 
-  <!-- Scene 4 -->
-  <div id="scene4" class="scene">
-    <div class="overlay-content">
-      <div class="romantic-text" id="proposal-text" data-shadow="Will you be my universe? 💫">Will you be my universe? 💫</div>
-      <div class="proposal-buttons">
-        <button id="yes-btn" class="btn">YES</button>
-        <button id="no-btn" class="btn">NO</button>
-      </div>
-      <div class="romantic-sub" id="final-message" style="margin-top:1.8rem;min-height:1.2em;"></div>
+    <!-- Scene 4: Bouquet -->
+    <div class="scene" id="scene4">
+        <canvas id="bouquetCanvas"></canvas>
+        <div class="bouquet-container" id="bouquetContainer"></div>
+        <button class="continue-button" onclick="showProposal()">Continue</button>
     </div>
-  </div>
 
-  <div id="ribbon"></div>
-</div>
+    <!-- Scene 5: Proposal -->
+    <div class="scene" id="scene5">
+        <canvas id="proposalCanvas"></canvas>
+        <div class="proposal-text">Will you be my universe? 💫</div>
+        <div class="choice-buttons">
+            <button class="yes-button" onclick="handleYes()">YES</button>
+            <button class="no-button" id="noButton" onclick="handleNo()">NO</button>
+        </div>
+    </div>
 
-<script>
-(function(){
-  "use strict";
+    <!-- Scene 6: Final -->
+    <div class="scene" id="scene6">
+        <canvas id="finalCanvas"></canvas>
+        <div class="final-text">You were always my favorite galaxy 🌙🌷</div>
+    </div>
 
-  function safe(fn){
-    return function(){
-      try{
-        return fn.apply(this,arguments);
-      }catch(e){
-        console.error(e);
-      }
-    };
-  }
+    <script>
+        let audioContext;
+        let windGain, heartbeatOsc;
+        let noClickCount = 0;
 
-  const scenes=[
-    document.getElementById("scene1"),
-    document.getElementById("scene2"),
-    document.getElementById("scene3"),
-    document.getElementById("scene4")
-  ];
-  let currentScene=0;
-  let autoTimers=[];
-
-  function clearAutoTimers(){
-    autoTimers.forEach(id=>clearTimeout(id));
-    autoTimers=[];
-  }
-
-  function showScene(index){
-    clearAutoTimers();
-    scenes.forEach((s,i)=>s.classList.toggle("active",i===index));
-    currentScene=index;
-  }
-
-  const starCanvas=document.getElementById("star-canvas");
-  const tulipCanvas=document.getElementById("tulip-canvas");
-  const starCtx=starCanvas.getContext("2d");
-  const tulipCtx=tulipCanvas.getContext("2d");
-  let W=window.innerWidth;
-  let H=window.innerHeight;
-
-  function resize(){
-    W=window.innerWidth;
-    H=window.innerHeight;
-    starCanvas.width=W;
-    starCanvas.height=H;
-    tulipCanvas.width=W;
-    tulipCanvas.height=H;
-    createStars();
-    createTulips();
-  }
-  window.addEventListener("resize",safe(resize));
-  resize();
-
-  /* Starfield */
-  let stars=[];
-  function createStars(){
-    stars.length=0;
-    const count=Math.floor((W+H)/6);
-    for(let i=0;i<count;i++){
-      stars.push({
-        x:Math.random()*W,
-        y:Math.random()*H,
-        r:Math.random()*1.2+0.3,
-        tw:Math.random()*Math.PI*2,
-        s:0.2+Math.random()*0.8
-      });
-    }
-  }
-
-  const starLoop=safe(function starLoopFn(){
-    starCtx.clearRect(0,0,W,H);
-    const grd=starCtx.createRadialGradient(W*0.2,0,0,W*0.5,H,Math.max(W,H));
-    grd.addColorStop(0,"#232a45");
-    grd.addColorStop(0.45,"#050510");
-    grd.addColorStop(1,"#000000");
-    starCtx.fillStyle=grd;
-    starCtx.fillRect(0,0,W,H);
-
-    starCtx.save();
-    starCtx.globalCompositeOperation="screen";
-    for(let s of stars){
-      s.tw+=0.02*s.s;
-      const alpha=0.4+0.6*Math.sin(s.tw);
-      starCtx.beginPath();
-      starCtx.fillStyle="rgba(255,255,255,"+alpha.toFixed(3)+")";
-      starCtx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      starCtx.fill();
-    }
-    starCtx.restore();
-
-    requestAnimationFrame(starLoopFn);
-  });
-  starLoop();
-
-  /* Tulip field */
-  let tulips=[];
-  const TULIP_COUNT_NEAR=20;
-  const TULIP_COUNT_FAR=35;
-
-  function createTulips(){
-    tulips.length=0;
-    const baseY=H*0.72;
-    function makeTulip(isNear){
-      const depth=isNear? (0.5+Math.random()*0.3):(0.2+Math.random()*0.3);
-      const spread=W*1.2;
-      const x=W/2 + (Math.random()*2-1)*spread*depth;
-      const swayPhase=Math.random()*Math.PI*2;
-      const stemHeight=isNear?(120+Math.random()*80):(70+Math.random()*60);
-      const scale=depth*(isNear?1.1:0.7);
-      const y=baseY-stemHeight*scale;
-      return{
-        x,y,depth,scale,
-        baseY,
-        stemHeight,
-        swayPhase,
-        bloom:0.3,
-        bloomTarget:Math.random()*0.4+0.6
-      };
-    }
-    for(let i=0;i<TULIP_COUNT_FAR;i++) tulips.push(makeTulip(false));
-    for(let i=0;i<TULIP_COUNT_NEAR;i++) tulips.push(makeTulip(true));
-    tulips.sort((a,b)=>a.depth-b.depth);
-  }
-
-  function drawSingleTulip(t,time){
-    const ctx=tulipCtx;
-    const sway=Math.sin(time*0.0009 + t.swayPhase)*12*t.depth;
-    const baseX=t.x+sway;
-    const baseY=t.baseY;
-
-    const shadowOffset=18*t.depth;
-    const shadowWidth=34*t.depth*t.scale;
-    const shadowHeight=10*t.depth*t.scale;
-    const shadowAlpha=0.12+0.18*t.depth;
-    const shadowGrad=ctx.createRadialGradient(baseX+shadowOffset,baseY,2,baseX+shadowOffset,baseY,shadowWidth);
-    shadowGrad.addColorStop(0,"rgba(0,0,0,"+shadowAlpha.toFixed(3)+")");
-    shadowGrad.addColorStop(1,"rgba(0,0,0,0)");
-    ctx.fillStyle=shadowGrad;
-    ctx.beginPath();
-    ctx.ellipse(baseX+shadowOffset,baseY+2,shadowWidth,shadowHeight,0,0,Math.PI*2);
-    ctx.fill();
-
-    ctx.save();
-    ctx.translate(baseX,baseY);
-
-    const stemLen=t.stemHeight*t.scale;
-    ctx.lineWidth=4*t.depth*t.scale;
-    ctx.lineCap="round";
-    const stemGrad=ctx.createLinearGradient(0,-stemLen,0,0);
-    stemGrad.addColorStop(0,"#4ba36a");
-    stemGrad.addColorStop(0.6,"#1f7b46");
-    stemGrad.addColorStop(1,"#0a3b24");
-    ctx.strokeStyle=stemGrad;
-
-    ctx.beginPath();
-    ctx.moveTo(0,0);
-    const ctrl1x=20*(t.depth+0.2);
-    const ctrl1y=-stemLen*0.35;
-    const ctrl2x=-15*(t.depth+0.1);
-    const ctrl2y=-stemLen*0.75;
-    ctx.bezierCurveTo(ctrl1x,ctrl1y,ctrl2x,ctrl2y,0,-stemLen);
-    ctx.stroke();
-
-    function drawLeaf(side){
-      const leafLen=55*t.scale*t.depth;
-      const leafWidth=24*t.scale*t.depth;
-      ctx.beginPath();
-      ctx.moveTo(0,-stemLen*0.4);
-      const lx1=side*leafWidth*0.4;
-      const ly1=-stemLen*0.4-leafLen*0.1;
-      const lx2=side*leafWidth;
-      const ly2=-stemLen*0.4-leafLen*0.9;
-      const lx3=side*leafWidth*0.2;
-      const ly3=-stemLen*0.4-leafLen;
-      ctx.bezierCurveTo(lx1,ly1,lx2,ly2,lx3,ly3);
-      ctx.bezierCurveTo(side*leafWidth*0.1,-stemLen*0.4-leafLen*0.8,side*leafWidth*0.05,-stemLen*0.4-leafLen*0.4,0,-stemLen*0.4);
-      const g=ctx.createLinearGradient(0,-stemLen*0.4-leafLen,0,-stemLen*0.4);
-      g.addColorStop(0,"rgba(40,160,90,0.95)");
-      g.addColorStop(1,"rgba(7,70,36,0.95)");
-      ctx.fillStyle=g;
-      ctx.fill();
-    }
-    drawLeaf(-1);
-    drawLeaf(1);
-
-    const bloomProgress=t.bloom;
-    const budY=-stemLen;
-    const budScale=1.6*bloomProgress+0.3;
-
-    ctx.translate(0,budY);
-    ctx.scale(budScale,budScale);
-
-    const petalGradBase=ctx.createLinearGradient(0,-54,0,24);
-    petalGradBase.addColorStop(0,"#ffeaf5");
-    petalGradBase.addColorStop(0.4,"#ff8fbd");
-    petalGradBase.addColorStop(1,"#c01153");
-
-    function drawPetal(angle,spread){
-      ctx.save();
-      ctx.rotate(angle*Math.PI/180);
-      ctx.beginPath();
-      ctx.moveTo(0,0);
-      const topY=-32-spread*10;
-      ctx.bezierCurveTo(-10-spread*4,-16,-12-spread*6,topY,-2,topY-6);
-      ctx.bezierCurveTo(2,topY-6,10+spread*4,-16,0,0);
-      const g=ctx.createLinearGradient(0,0,0,topY);
-      g.addColorStop(0,"rgba(255,230,245,0.95)");
-      g.addColorStop(0.35,"rgba(255,155,205,0.98)");
-      g.addColorStop(1,"rgba(200,10,70,0.98)");
-      ctx.fillStyle=g;
-      ctx.fill();
-      ctx.restore();
-    }
-
-    ctx.globalAlpha=0.9;
-    drawPetal(34,bloomProgress);
-    drawPetal(-34,bloomProgress);
-    ctx.globalAlpha=1;
-
-    ctx.save();
-    ctx.scale(1.05,1.08);
-    drawPetal(0,bloomProgress*1.2);
-    ctx.restore();
-
-    ctx.save();
-    ctx.globalAlpha=0.9;
-    drawPetal(18,bloomProgress*0.9);
-    drawPetal(-18,bloomProgress*0.9);
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.ellipse(0,-6,6,10,0,0,Math.PI*2);
-    const innerGrad=ctx.createRadialGradient(0,-11,0,0,-10,10);
-    innerGrad.addColorStop(0,"#ffeef8");
-    innerGrad.addColorStop(1,"#ff6da9");
-    ctx.fillStyle=innerGrad;
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  const tulipLoop=safe(function tulipLoopFn(ts){
-    if(!ts) ts=performance.now();
-    tulipCtx.clearRect(0,0,W,H);
-
-    const grd=tulipCtx.createLinearGradient(0,H*0.2,0,H);
-    grd.addColorStop(0,"rgba(1,3,12,0)");
-    grd.addColorStop(0.4,"rgba(0,12,20,0.25)");
-    grd.addColorStop(1,"rgba(1,10,4,1)");
-    tulipCtx.fillStyle=grd;
-    tulipCtx.fillRect(0,0,W,H);
-
-    for(let t of tulips){
-      const windFactor=0.00018;
-      const ambientSway=Math.sin(ts*windFactor + t.swayPhase*1.3)*0.005;
-      t.swayPhase+=ambientSway;
-      if(t.bloom<t.bloomTarget){
-        t.bloom += (t.bloomTarget - t.bloom)*0.02;
-      }
-      drawSingleTulip(t,ts);
-    }
-    requestAnimationFrame(tulipLoopFn);
-  });
-  tulipLoop();
-
-  /* Audio */
-  let audioCtx=null;
-  let masterGain=null;
-  let heartbeatInterval=null;
-
-  function initAudio(){
-    if(audioCtx) return;
-    try{
-      audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-      masterGain=audioCtx.createGain();
-      masterGain.gain.value=0.7;
-      masterGain.connect(audioCtx.destination);
-      createWind();
-      startHeartbeat();
-    }catch(e){
-      console.error("Audio init failed",e);
-    }
-  }
-
-  function createWind(){
-    if(!audioCtx) return;
-    const bufferSize=2*audioCtx.sampleRate;
-    const noiseBuffer=audioCtx.createBuffer(1,bufferSize,audioCtx.sampleRate);
-    const output=noiseBuffer.getChannelData(0);
-    for(let i=0;i<bufferSize;i++){
-      output[i]=(Math.random()*2-1)*0.5;
-    }
-    const noise=audioCtx.createBufferSource();
-    noise.buffer=noiseBuffer;
-    noise.loop=true;
-
-    const filter=audioCtx.createBiquadFilter();
-    filter.type="lowpass";
-    filter.frequency.value=800;
-    filter.Q.value=0.5;
-
-    const gain=audioCtx.createGain();
-    gain.gain.value=0.25;
-
-    noise.connect(filter);
-    filter.connect(gain);
-    gain.connect(masterGain);
-    noise.start();
-  }
-
-  function startHeartbeat(){
-    if(!audioCtx) return;
-    const bpm=42;
-    const interval=60/bpm*1000;
-    if(heartbeatInterval) clearInterval(heartbeatInterval);
-    heartbeatInterval=setInterval(()=>{
-      try{
-        const now=audioCtx.currentTime;
-        const kickGain=audioCtx.createGain();
-        kickGain.gain.setValueAtTime(0.0,now);
-        kickGain.gain.linearRampToValueAtTime(0.8,now+0.01);
-        kickGain.gain.exponentialRampToValueAtTime(0.001,now+0.35);
-
-        const osc=audioCtx.createOscillator();
-        osc.type="sine";
-        osc.frequency.setValueAtTime(60,now);
-        osc.frequency.exponentialRampToValueAtTime(35,now+0.35);
-
-        osc.connect(kickGain);
-        kickGain.connect(masterGain);
-        osc.start(now);
-        osc.stop(now+0.4);
-      }catch(e){
-        console.error(e);
-      }
-    },interval);
-  }
-
-  function playWhoosh(duration){
-    if(!audioCtx) return;
-    try{
-      const now=audioCtx.currentTime;
-      const osc=audioCtx.createOscillator();
-      const gain=audioCtx.createGain();
-      osc.type="sine";
-      osc.frequency.setValueAtTime(180,now);
-      osc.frequency.exponentialRampToValueAtTime(800,now+duration*0.6);
-      gain.gain.setValueAtTime(0.0,now);
-      gain.gain.linearRampToValueAtTime(0.6,now+duration*0.1);
-      gain.gain.exponentialRampToValueAtTime(0.001,now+duration);
-      osc.connect(gain);
-      gain.connect(masterGain);
-      osc.start(now);
-      osc.stop(now+duration+0.05);
-    }catch(e){
-      console.error(e);
-    }
-  }
-
-  function playChime(){
-    if(!audioCtx) return;
-    try{
-      const now=audioCtx.currentTime;
-      const freqs=[523.25,659.25,783.99];
-      freqs.forEach((f,idx)=>{
-        const start=now+idx*0.04;
-        const osc=audioCtx.createOscillator();
-        const gain=audioCtx.createGain();
-        osc.type="sine";
-        osc.frequency.value=f;
-        gain.gain.setValueAtTime(0.0,start);
-        gain.gain.linearRampToValueAtTime(0.6,start+0.04);
-        gain.gain.exponentialRampToValueAtTime(0.001,start+1.1);
-        osc.connect(gain);
-        gain.connect(masterGain);
-        osc.start(start);
-        osc.stop(start+1.2);
-      });
-    }catch(e){
-      console.error(e);
-    }
-  }
-
-  function playSoftWhooshShort(){
-    playWhoosh(0.35);
-  }
-
-  /* Dissolve */
-  function startDissolve(callback){
-    playWhoosh(0.5);
-    const count=120;
-    const particles=[];
-    for(let i=0;i<count;i++){
-      particles.push({
-        x:W/2+(Math.random()*2-1)*W*0.45,
-        y:H/2+(Math.random()*2-1)*H*0.25,
-        r:2+Math.random()*4,
-        vx:(Math.random()*2-1)*2,
-        vy:(Math.random()*2-1)*2,
-        life:1+Math.random()*0.6
-      });
-    }
-    const start=performance.now();
-    const total=900;
-
-    const loop=safe(function step(ts){
-      const t=(ts-start)/total;
-      if(t>=1){
-        if(callback) callback();
-        return;
-      }
-      starCtx.save();
-      starCtx.globalCompositeOperation="lighter";
-      for(let p of particles){
-        p.x+=p.vx;
-        p.y+=p.vy;
-        const alpha=Math.max(0,1-t*p.life);
-        starCtx.beginPath();
-        starCtx.fillStyle="rgba(255,210,255,"+alpha.toFixed(3)+")";
-        starCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
-        starCtx.fill();
-      }
-      starCtx.restore();
-      requestAnimationFrame(step);
-    });
-    requestAnimationFrame(loop);
-  }
-
-  /* Poem */
-  const poemLines=[
-"Sometimes I think I fell for you",
-"before I even learned how falling works.",
-"My words trip over themselves..",
-"And as I said earlier.. you're like a Luminous Singularity",
-"which's parallel yet coincidently intersecting...",
-"Like constellations shuffled in a hurry...",
-"Orion losing its belt..",
-"Cassiopeia sitting upside down..",
-"and whole sky is asking \"Why is she the only one shining this bright?\"",
-"And I swear ... ",
-"every time i try to explain what you mean to me.. I fumble..I'm scared...",
-"and my heart chooses Your tulips instead of sentences ",
-"petals arranged in a wrong order.. yet beautiful..",
-"Colors mixing where they shouldn't yet somehow looking eternal..",
-"and it's strange how You make the universe feel like a misprinted bouquet..",
-"Galaxies scribbled over with your name..",
-"planets orbiting a little too close..",
-"a pull like the Black hole..",
-"Like they too forgot their distance.",
-"And me? I'm jst a boy holding a bouquet thinking maybe if I say it wrong enough times",
-"you Might hear the truth hidden between the mistakes",
-"That in every star's cold shimmer and every tulip's quite softness",
-"i keep finding you ",
-"not perfectly..",
-"not clearly ",
-"but completely..."
-  ];
-  const poemContainer=document.getElementById("poem-container");
-  let poemLineEls=[];
-  let currentPoemIndex=0;
-
-  function setupPoem(){
-    poemContainer.innerHTML="";
-    poemLineEls=[];
-    poemLines.forEach(()=>{
-      const p=document.createElement("div");
-      p.className="poem-line";
-      poemContainer.appendChild(p);
-      poemLineEls.push(p);
-    });
-  }
-  setupPoem();
-
-  function triggerTulipBloomWave(){
-    tulips.forEach(t=>{
-      t.bloomTarget=Math.min(1,t.bloomTarget+0.05+Math.random()*0.25);
-    });
-  }
-
-  function typeLine(idx,cb){
-    if(idx>=poemLines.length){
-      if(cb) cb();
-      return;
-    }
-    const p=poemLineEls[idx];
-    const text=poemLines[idx];
-    p.textContent="";
-    const chars=[];
-    for(let ch of text){
-      const span=document.createElement("span");
-      span.textContent=ch;
-      span.className="char";
-      p.appendChild(span);
-      chars.push(span);
-    }
-    p.classList.add("visible");
-    playSoftWhooshShort();
-    triggerTulipBloomWave();
-
-    let i=0;
-    const delay=30;
-    function nextChar(){
-      if(i>=chars.length){
-        if(cb) cb();
-        return;
-      }
-      chars[i].classList.add("show");
-      i++;
-      setTimeout(nextChar,delay);
-    }
-    nextChar();
-  }
-
-  function startPoemSequence(){
-    currentPoemIndex=0;
-    function showNext(){
-      if(currentPoemIndex>=poemLines.length) return;
-      typeLine(currentPoemIndex,()=>{
-        currentPoemIndex++;
-        setTimeout(showNext,250);
-      });
-    }
-    showNext();
-  }
-
-  /* Bouquet & ribbon */
-  function animateBouquetAndThenProposal(){
-    playWhoosh(0.7);
-    const centerX=W/2;
-    const centerY=H*0.58;
-    const ribbon=document.getElementById("ribbon");
-    ribbon.style.transform="translate(-50%,-10%) scale(0)";
-
-    const start=performance.now();
-    const duration=1500;
-
-    const loop=safe(function step(ts){
-      const t=Math.min(1,(ts-start)/duration);
-      const ease=t*t*(3-2*t);
-      tulips.forEach((tp,idx)=>{
-        const angleOffset=(idx%6-2.5)*0.08;
-        const layer=Math.floor(idx/6);
-        const targetDepth=0.9-0.05*layer;
-        const targetScale=1.2-targetDepth*0.3;
-        const tx=centerX+Math.sin(angleOffset*2)*40*targetDepth;
-        const ty=centerY - layer*26;
-        tp.x += (tx - tp.x)*0.15;
-        tp.baseY += (ty - tp.baseY)*0.15;
-        tp.depth += (targetDepth - tp.depth)*0.12;
-        tp.scale += (targetScale - tp.scale)*0.12;
-        tp.bloomTarget=1;
-      });
-
-      const ribbonScale=ease;
-      ribbon.style.transform="translate(-50%,-10%) scale("+ribbonScale.toFixed(3)+")";
-      const wave=Math.sin(ts*0.006)*6*(1-ease*0.8);
-      ribbon.style.borderRadius=(30+Math.abs(wave)).toFixed(1)+"px";
-
-      if(t<1){
-        requestAnimationFrame(step);
-      }else{
-        setTimeout(()=>{
-          showScene(3);
-        },400);
-      }
-    });
-    requestAnimationFrame(loop);
-  }
-
-  /* Petal rain */
-  function spawnPetal(){
-    const petal=document.createElement("div");
-    petal.className="petal";
-    const startX=Math.random()*W;
-    const startY=-20;
-    petal.style.left=startX+"px";
-    petal.style.top=startY+"px";
-
-    const fallDuration=7000+Math.random()*4000;
-    const drift=(Math.random()*2-1)*120;
-    document.body.appendChild(petal);
-    const start=performance.now();
-
-    const loop=safe(function step(ts){
-      const t=Math.min(1,(ts-start)/fallDuration);
-      const x=startX + drift*t + Math.sin(ts*0.004 + drift)*14;
-      const y=startY + (H+80)*t;
-      petal.style.left=x+"px";
-      petal.style.top=y+"px";
-      petal.style.transform="rotate("+(t*720 + drift)+"deg)";
-      petal.style.opacity=(1-t).toFixed(3);
-      if(t<1){
-        requestAnimationFrame(step);
-      }else{
-        petal.remove();
-      }
-    });
-    requestAnimationFrame(loop);
-  }
-
-  function startPetalRain(){
-    const count=70;
-    for(let i=0;i<count;i++){
-      setTimeout(spawnPetal,Math.random()*3000);
-    }
-  }
-
-  /* Buttons and flow */
-  const startBtn=document.getElementById("start-btn");
-  const fallback1=document.getElementById("fallback1");
-  const contPoemBtn=document.getElementById("continue-poem");
-  const fallback2=document.getElementById("fallback2");
-  const nextBouquetBtn=document.getElementById("next-bouquet");
-  const fallback3=document.getElementById("fallback3");
-  const yesBtn=document.getElementById("yes-btn");
-  const noBtn=document.getElementById("no-btn");
-  const finalMessage=document.getElementById("final-message");
-
-  function scheduleAutoAdvance(targetIndex){
-    const timer=setTimeout(()=>{
-      if(currentScene===targetIndex-1){
-        if(targetIndex===1){
-          goToTulips();
-        }else if(targetIndex===2){
-          goToPoem();
-        }else if(targetIndex===3){
-          goToBouquet();
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                createWindAmbience();
+                createHeartbeat();
+            } catch (e) {
+                console.log('Audio not supported');
+            }
         }
-      }
-    },8000);
-    autoTimers.push(timer);
-  }
 
-  const goToTulips=safe(function(){
-    initAudio();
-    startDissolve(()=>{
-      showScene(1);
-      scheduleAutoAdvance(2);
-    });
-  });
+        function createWindAmbience() {
+            if (!audioContext) return;
+            try {
+                const bufferSize = audioContext.sampleRate * 2;
+                const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 0.1 - 0.05;
+                }
+                const noise = audioContext.createBufferSource();
+                noise.buffer = buffer;
+                noise.loop = true;
+                const filter = audioContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 400;
+                windGain = audioContext.createGain();
+                windGain.gain.value = 0.15;
+                noise.connect(filter);
+                filter.connect(windGain);
+                windGain.connect(audioContext.destination);
+                noise.start();
+            } catch (e) {}
+        }
 
-  const goToPoem=safe(function(){
-    showScene(2);
-    setupPoem();
-    startPoemSequence();
-    scheduleAutoAdvance(3);
-  });
+        function createHeartbeat() {
+            if (!audioContext) return;
+            try {
+                heartbeatOsc = audioContext.createOscillator();
+                const heartGain = audioContext.createGain();
+                heartbeatOsc.type = 'sine';
+                heartbeatOsc.frequency.value = 60;
+                heartGain.gain.value = 0;
+                heartbeatOsc.connect(heartGain);
+                heartGain.connect(audioContext.destination);
+                heartbeatOsc.start();
+                setInterval(() => {
+                    if (heartGain.gain.value > 0) {
+                        heartGain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        heartGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    }
+                }, 1000);
+            } catch (e) {}
+        }
 
-  const goToBouquet=safe(function(){
-    animateBouquetAndThenProposal();
-  });
+        function playWhoosh() {
+            if (!audioContext) return;
+            try {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, audioContext.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                osc.start();
+                osc.stop(audioContext.currentTime + 0.3);
+            } catch (e) {}
+        }
 
-  startBtn.addEventListener("click",safe(goToTulips));
-  fallback1.addEventListener("click",safe(goToTulips));
+        function playChime() {
+            if (!audioContext) return;
+            try {
+                const freqs = [523.25, 659.25, 783.99, 1046.50];
+                freqs.forEach((freq, i) => {
+                    setTimeout(() => {
+                        const osc = audioContext.createOscillator();
+                        const gain = audioContext.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                        osc.connect(gain);
+                        gain.connect(audioContext.destination);
+                        osc.start();
+                        osc.stop(audioContext.currentTime + 1);
+                    }, i * 150);
+                });
+            } catch (e) {}
+        }
 
-  contPoemBtn.addEventListener("click",safe(goToPoem));
-  fallback2.addEventListener("click",safe(goToPoem));
+        // Star canvas animation
+        function initStarCanvas() {
+            const canvas = document.getElementById('starCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
 
-  nextBouquetBtn.addEventListener("click",safe(goToBouquet));
-  fallback3.addEventListener("click",safe(goToBouquet));
+            const stars = [];
+            for (let i = 0; i < 200; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2,
+                    speed: Math.random() * 0.5 + 0.1,
+                    opacity: Math.random()
+                });
+            }
 
-  yesBtn.addEventListener("click",safe(function(){
-    initAudio();
-    playChime();
-    startPetalRain();
-    finalMessage.textContent="You were always my favorite galaxy 🌙🌷";
-  }));
+            function animate() {
+                ctx.fillStyle = 'rgba(0, 0, 10, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                stars.forEach(star => {
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                    ctx.fill();
+                    
+                    star.opacity += star.speed * 0.01;
+                    if (star.opacity > 1 || star.opacity < 0) star.speed *= -1;
+                });
 
-  let noMoveCount=0;
-  noBtn.addEventListener("click",safe(function(){
-    noMoveCount++;
-    const rect=noBtn.getBoundingClientRect();
-    const offsetX=(Math.random()*2-1)*120;
-    const offsetY=(Math.random()*2-1)*60;
-    const newLeft=Math.min(W-rect.width-20,Math.max(20,rect.left+offsetX));
-    const newTop=Math.min(H-rect.height-20,Math.max(20,rect.top+offsetY));
-    noBtn.style.position="fixed";
-    noBtn.style.left=newLeft+"px";
-    noBtn.style.top=newTop+"px";
-  }));
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
 
-  document.addEventListener("click",safe(function(){
-    if(audioCtx && audioCtx.state==="suspended"){
-      audioCtx.resume();
+        function transitionToScene2() {
+            if (!audioContext) initAudio();
+            playWhoosh();
+            document.getElementById('scene1').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('scene2').classList.add('active');
+                initTulipField('tulipCanvas');
+            }, 500);
+            setTimeout(() => {
+                document.querySelector('#scene2 .continue-button').click();
+            }, 8000);
+        }
+
+        class Tulip {
+            constructor(x, y, scale, hue) {
+                this.x = x;
+                this.y = y;
+                this.scale = scale;
+                this.hue = hue;
+                this.swayOffset = Math.random() * Math.PI * 2;
+                this.bloomProgress = 0;
+            }
+
+            draw(ctx, time) {
+                const sway = Math.sin(time * 0.001 + this.swayOffset) * 5 * this.scale;
+                
+                ctx.save();
+                ctx.translate(this.x + sway, this.y);
+                ctx.scale(this.scale, this.scale);
+
+                // Stem
+                ctx.strokeStyle = `hsl(120, 40%, 30%)`;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-5, -30, 5, -60, 0, -90);
+                ctx.stroke();
+
+                // Petals
+                ctx.translate(0, -90);
+                const petalCount = 6;
+                const petalRadius = 15 + this.bloomProgress * 5;
+                
+                for (let i = 0; i < petalCount; i++) {
+                    const angle = (Math.PI * 2 * i) / petalCount;
+                    ctx.save();
+                    ctx.rotate(angle);
+                    ctx.translate(0, -petalRadius);
+                    
+                    const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 20);
+                    gradient.addColorStop(0, `hsl(${this.hue}, 80%, 60%)`);
+                    gradient.addColorStop(0.5, `hsl(${this.hue}, 70%, 50%)`);
+                    gradient.addColorStop(1, `hsl(${this.hue}, 60%, 40%)`);
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 12, 20, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = `hsl(${this.hue}, 50%, 35%)`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+                    
+                    ctx.restore();
+                }
+
+                // Center
+                const centerGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 8);
+                centerGradient.addColorStop(0, `hsl(50, 80%, 50%)`);
+                centerGradient.addColorStop(1, `hsl(40, 70%, 40%)`);
+                ctx.fillStyle = centerGradient;
+                ctx.beginPath();
+                ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            bloom() {
+                if (this.bloomProgress < 1) {
+                    this.bloomProgress += 0.02;
+                }
+            }
+        }
+
+        let tulips = [];
+        let tulipAnimationId;
+
+        function initTulipField(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            tulips = [];
+            const rows = 5;
+            const cols = 8;
+            
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const x = (canvas.width / (cols + 1)) * (col + 1) + (Math.random() - 0.5) * 50;
+                    const y = canvas.height * 0.4 + (row * 80) + (Math.random() - 0.5) * 30;
+                    const scale = 0.8 + (row * 0.15) + Math.random() * 0.2;
+                    const hue = 340 + Math.random() * 20;
+                    tulips.push(new Tulip(x, y, scale, hue));
+                }
+            }
+
+            function animate() {
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#1a0a2e');
+                gradient.addColorStop(0.5, '#2d1b4e');
+                gradient.addColorStop(1, '#16213e');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                const time = Date.now();
+                tulips.forEach(tulip => tulip.draw(ctx, time));
+
+                tulipAnimationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        const poemLines = [
+            "Sometimes I think I fell for you",
+            "before I even learned how falling works.",
+            "My words trip over themselves..",
+            "And as I said earlier.. you're like a Luminous Singularity",
+            "which's parallel yet coincidently intersecting...",
+            "Like constellations shuffled in a hurry...",
+            "Orion losing its belt..",
+            "Cassiopeia sitting upside down..",
+            "and whole sky is asking \"Why is she the only one shining this bright?\"",
+            "And I swear ...",
+            "every time i try to explain what you mean to me.. I fumble..I'm scared...",
+            "and my heart chooses Your tulips instead of sentences",
+            "petals arranged in a wrong order.. yet beautiful..",
+            "Colors mixing where they shouldn't yet somehow looking eternal..",
+            "and it's strange how You make the universe feel like a misprinted bouquet..",
+            "Galaxies scribbled over with your name..",
+            "planets orbiting a little too close..",
+            "a pull like the Black hole..",
+            "Like they too forgot their distance.",
+            "And me? I'm jst a boy holding a bouquet thinking maybe if I say it wrong enough times",
+            "you Might hear the truth hidden between the mistakes",
+            "That in every star's cold shimmer and every tulip's quite softness",
+            "i keep finding you",
+            "not perfectly..",
+            "not clearly",
+            "but completely..."
+        ];
+
+        let currentLine = 0;
+
+        function startPoem() {
+            document.getElementById('scene2').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('scene3').classList.add('active');
+                initTulipField('tulipCanvas2');
+                displayNextLine();
+            }, 500);
+        }
+
+        function displayNextLine() {
+            if (currentLine >= poemLines.length) {
+                setTimeout(() => {
+                    document.getElementById('poemContinue').style.opacity = '1';
+                    document.getElementById('poemContinue').style.pointerEvents = 'all';
+                }, 1000);
+                setTimeout(() => {
+                    document.getElementById('poemContinue').click();
+                }, 9000);
+                return;
+            }
+
+            const line = document.createElement('div');
+            line.className = 'poem-line';
+            line.textContent = poemLines[currentLine];
+            document.getElementById('poemContainer').appendChild(line);
+            
+            setTimeout(() => {
+                line.classList.add('visible');
+                playWhoosh();
+                
+                if (tulips.length > 0) {
+                    const randomTulip = tulips[Math.floor(Math.random() * tulips.length)];
+                    randomTulip.bloom();
+                }
+            }, 100);
+
+            currentLine++;
+            setTimeout(displayNextLine, 2500);
+        }
+
+        function showBouquetTransition() {
+            playWhoosh();
+            document.getElementById('scene3').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('scene4').classList.add('active');
+                createBouquet();
+            }, 500);
+            setTimeout(() => {
+                document.querySelector('#scene4 .continue-button').click();
+            }, 8000);
+        }
+
+        function createBouquet() {
+            const canvas = document.getElementById('bouquetCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0f0c29');
+            gradient.addColorStop(0.5, '#302b63');
+            gradient.addColorStop(1, '#24243e');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            // Ribbon
+            ctx.fillStyle = 'rgba(255, 182, 193, 0.8)';
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY + 50, 80, 30, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Bouquet tulips
+            const bouquetTulips = [];
+            for (let i = 0; i < 7; i++) {
+                const angle = (Math.PI * 2 * i) / 7;
+                const radius = 60;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY - 50 + Math.sin(angle) * radius;
+                const hue = 340 + Math.random() * 20;
+                bouquetTulips.push(new Tulip(x, y, 1.2, hue));
+            }
+
+            function animate() {
+                const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#0f0c29');
+                gradient.addColorStop(0.5, '#302b63');
+                gradient.addColorStop(1, '#24243e');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = 'rgba(255, 182, 193, 0.8)';
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY + 50, 80, 30, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                const time = Date.now();
+                bouquetTulips.forEach(tulip => {
+                    tulip.bloomProgress = 1;
+                    tulip.draw(ctx, time);
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function showProposal() {
+            playWhoosh();
+            document.getElementById('scene4').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('scene5').classList.add('active');
+                initProposalCanvas();
+            }, 500);
+        }
+
+        function initProposalCanvas() {
+            const canvas = document.getElementById('proposalCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            function animate() {
+                const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
+                gradient.addColorStop(0, '#1a0a2e');
+                gradient.addColorStop(1, '#0a0010');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Stars
+                for (let i = 0; i < 100; i++) {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${Math.random()})`;
+                    ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
+                }
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function handleNo() {
+            noClickCount++;
+            const btn = document.getElementById('noButton');
+            
+            if (noClickCount === 1) {
+                btn.style.transform = 'translate(100px, -50px)';
+            } else if (noClickCount === 2) {
+                btn.style.transform = 'translate(-100px, 50px)';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function handleYes() {
+            playChime();
+            createFallingPetals();
+            
+            setTimeout(() => {
+                document.getElementById('scene5').classList.remove('active');
+                setTimeout(() => {
+                    document.getElementById('scene6').classList.add('active');
+                    initFinalCanvas();
+                }, 500);
+            }, 3000);
+        }
+
+        function createFallingPetals() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                  petal.style.left = Math.random() * 100 + '%';
+petal.style.animationDuration = (Math.random() * 3 + 3) + 's';
+petal.style.animationDelay = '0s';
+petal.style.animation = 'petalFall linear forwards';
+document.body.appendChild(petal);
+                setTimeout(() => petal.remove(), 6000);
+            }, i * 100);
+        }
     }
-  }));
 
-  createStars();
-  createTulips();
-  scheduleAutoAdvance(1);
-})();
+    function initFinalCanvas() {
+        const canvas = document.getElementById('finalCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function animate() {
+            const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width);
+            gradient.addColorStop(0, '#2d1b4e');
+            gradient.addColorStop(0.5, '#1a0a2e');
+            gradient.addColorStop(1, '#0a0010');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Sparkles
+            for (let i = 0; i < 150; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const size = Math.random() * 3;
+                const opacity = Math.random();
+                
+                ctx.fillStyle = `rgba(255, 215, 0, ${opacity})`;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+        initStarCanvas();
+    });
+
+    window.addEventListener('resize', () => {
+        const canvases = document.querySelectorAll('canvas');
+        canvases.forEach(canvas => {
+            if (canvas.getContext) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        });
+    });
 </script>
 </body>
 </html>
