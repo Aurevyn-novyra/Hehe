@@ -1,188 +1,117 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Will you be my universe? — Proposal</title>
-<meta name="description" content="Cinematic romantic proposal — tulip universe. Single-file, ultra-smooth animations, realistic tulips, bouquet, and WebAudio effects.">
+<meta name="description" content="A cinematic romantic single-file proposal experience with animated tulips, poem, bouquet and WebAudio.">
+
 <style>
-  /* =========================
-     Visual tokens — premium
-     ========================= */
   :root{
-    --bg-1: #07030a;
-    --bg-2: #171026;
-    --accent-h: 328;
-    --accent-s: 90%;
+    --bg-deep1: #05020a;
+    --bg-deep2: #15102a;
+    --accent-h: 332;
+    --accent-s: 92%;
     --accent-l: 64%;
-    --muted: rgba(255,255,255,0.78);
     --glass: rgba(255,255,255,0.04);
-    --ui-radius: 16px;
-    --max-width: 980px;
+    --muted: rgba(255,255,255,0.76);
+    --card-radius: 18px;
+    --maxw: 980px;
   }
-
-  html,body{height:100%;margin:0;font-family: "Georgia", "Times New Roman", serif;background:
-    radial-gradient(800px 420px at 14% 12%, rgba(120,20,80,0.06), transparent 8%),
-    linear-gradient(180deg,var(--bg-1), var(--bg-2)); color:#fff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow:hidden;}
-
-  /* Canvas covers background */
-  canvas#stage { position:fixed; inset:0; display:block; z-index:0; }
-
-  /* floating soft prism */
-  .prism {
-    position:fixed; inset:-10%; z-index:2; pointer-events:none;
-    background: linear-gradient(120deg, rgba(255,160,220,0.02), rgba(160,220,255,0.02));
-    mix-blend-mode: screen;
-    filter: blur(18px);
-    transform: rotate(12deg);
-    animation: prismMove 28s linear infinite;
-  }
-  @keyframes prismMove { 0%{transform: translate(-6%,-6%) rotate(0)} 50%{transform: translate(0,0) rotate(180deg)} 100%{transform: translate(-6%,-6%) rotate(360deg)} }
-
-  /* UI deck */
-  .ui { position:fixed; inset:0; z-index:6; display:flex; align-items:center; justify-content:center; pointer-events:none; flex-direction:column; gap:14px; text-align:center; }
-
-  .card {
-    pointer-events:auto;
-    width:min(var(--max-width),92%);
-    max-width:var(--max-width);
-    padding:20px 28px;
-    border-radius:var(--ui-radius);
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    box-shadow: 0 30px 90px rgba(2,6,23,0.6);
-    backdrop-filter: blur(6px) saturate(1.05);
-  }
-
-  .lead { font-size:20px; color:var(--muted); margin-bottom:12px; font-weight:600; letter-spacing:0.2px; }
-
-  .glass-btn {
-    pointer-events:auto;
-    display:inline-block;
-    border: 0;
-    padding: 14px 42px;
-    border-radius:999px;
-    font-weight:900;
-    font-size:18px;
-    cursor:pointer;
-    color:#fff;
-    background: linear-gradient(180deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) * 1%), 0.98), hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 6%)));
-    box-shadow: 0 10px 48px rgba(255,80,170,0.12), inset 0 -6px 18px rgba(0,0,0,0.16);
-    transition: transform .28s cubic-bezier(.2,.9,.3,1), box-shadow .28s;
-    outline:none;
-  }
-  .glass-btn:active { transform: scale(.98); }
-
-  .micro { font-size:12.5px; color:rgba(255,255,255,0.64); margin-top:8px; }
-
-  /* top-right tools */
-  .tools { position:fixed; right:18px; top:18px; display:flex; gap:10px; z-index:10; pointer-events:auto; }
-  .tool { padding:8px 12px; border-radius:12px; border:0; background: rgba(255,255,255,0.02); color:var(--muted); font-weight:800; cursor:pointer; box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
-
-  /* poem area */
-  .poem-area { position:fixed; left:50%; transform:translateX(-50%); bottom:78px; z-index:10; pointer-events:auto; width:min(860px,94%); padding:18px; border-radius:12px; background: rgba(0,0,0,0.36); box-shadow:0 20px 60px rgba(2,6,23,0.5); display:none; }
-  .poem-line { opacity:0; transform:translateY(10px); transition:all .6s cubic-bezier(.2,.9,.3,1); color: rgba(255,250,250,0.98); font-size:18px; line-height:1.6; text-align:left; }
-
-  /* bottom controls */
-  .bottom-controls { position:fixed; left:50%; transform:translateX(-50%); bottom:18px; z-index:11; display:flex; gap:12px; pointer-events:auto; }
-  .small-btn { padding:10px 14px; border-radius:10px; border:0; background:linear-gradient(180deg,#fff,#f3f3f3); font-weight:800; cursor:pointer; }
-
-  /* modal */
-  .modal { position:fixed; left:50%; top:50%; transform: translate(-50%,-50%) scale(.96); z-index:20; padding:20px; border-radius:14px; background: linear-gradient(180deg,#fff,#fff); color:#08121a; box-shadow:0 40px 120px rgba(2,6,23,0.6); display:none; pointer-events:auto; }
-  .modal.show { display:block; animation: pop .42s cubic-bezier(.2,.9,.3,1) both; }
-  @keyframes pop { from { opacity:0; transform:translate(-50%,-50%) scale(.86) } to { opacity:1; transform:translate(-50%,-50%) scale(1) } }
-  .modal h2{ margin:0 0 8px 0; font-size:22px; font-weight:900; }
-  .modal .row{ display:flex; gap:12px; justify-content:center; margin-top:12px; }
-
-  /* sound overlay */
-  .sound-overlay { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:30; pointer-events:auto; background: rgba(2,6,10,0.6); }
-  .sound-card { padding:18px; border-radius:12px; background:linear-gradient(180deg,#081221,#0f2630); color:#fff; text-align:center; box-shadow:0 30px 100px rgba(0,0,0,0.7); }
-
-  /* small credit */
-  .credit { position:fixed; left:12px; bottom:10px; color:rgba(255,255,255,0.08); font-size:12px; z-index:5; }
-
-  /* reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    .prism, .glass-btn, .tool, .small-btn, .modal { animation:none !important; transition:none !important; }
-  }
-
-  /* mobile tweaks */
-  @media (max-width:520px) {
-    .card { padding:14px; border-radius:12px; }
-    .glass-btn { padding:14px 28px; font-size:16px; }
-    .poem-line { font-size:16px; }
-  }
+  html,body{height:100%;margin:0;font-family:Georgia, "Times New Roman", serif;background:
+    radial-gradient(900px 360px at 12% 10%, rgba(180,40,110,0.04), transparent 6%),
+    linear-gradient(180deg,var(--bg-deep1),var(--bg-deep2)); color:#fff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow:hidden;}
+  /* Canvas */
+  canvas#stage{position:fixed;inset:0;display:block;z-index:0}
+  /* Prism overlay */
+  .prism{position:fixed;inset:-10%;z-index:2;pointer-events:none;background:linear-gradient(120deg, rgba(255,140,190,0.02), rgba(160,210,255,0.02));filter:blur(18px);mix-blend-mode:screen;animation:prismMove 26s linear infinite}
+  @keyframes prismMove{0%{transform:translate(-6%,-6%) rotate(0)}50%{transform:translate(0,0) rotate(180deg)}100%{transform:translate(-6%,-6%) rotate(360deg)}}
+  /* UI layer */
+  .ui{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;pointer-events:none;flex-direction:column}
+  .card{pointer-events:auto;width:min(var(--maxw),92%);padding:20px;border-radius:var(--card-radius);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));box-shadow:0 30px 100px rgba(2,6,23,0.6);backdrop-filter:blur(6px)}
+  .lead{font-size:20px;color:var(--muted);margin-bottom:12px}
+  .glass-btn{pointer-events:auto;border:0;padding:14px 42px;border-radius:999px;font-weight:900;font-size:18px;cursor:pointer;color:#fff;background:linear-gradient(180deg,hsl(var(--accent-h) var(--accent-s) var(--accent-l)), hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 6%)));box-shadow:0 12px 48px rgba(255,80,170,0.12);transition:transform .28s cubic-bezier(.2,.9,.3,1),box-shadow .28s;outline:none}
+  .glass-btn:active{transform:scale(.98)}
+  .micro{font-size:13px;color:rgba(255,255,255,0.6);margin-top:10px}
+  /* Tools / controls */
+  .tools{position:fixed;right:18px;top:18px;z-index:8;display:flex;gap:10px;pointer-events:auto}
+  .tool{padding:8px 12px;border-radius:12px;border:0;background:rgba(255,255,255,0.02);color:var(--muted);font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+  .poem-area{position:fixed;left:50%;transform:translateX(-50%);bottom:72px;z-index:9;pointer-events:auto;width:min(860px,94%);padding:16px;border-radius:12px;background:rgba(0,0,0,0.36);box-shadow:0 20px 60px rgba(2,6,23,0.5);display:none}
+  .poem-line{opacity:0;transform:translateY(10px);transition:all .52s cubic-bezier(.2,.9,.3,1);font-size:18px;line-height:1.6;color:rgba(255,250,250,0.98)}
+  .bottom-controls{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:10;display:flex;gap:12px;pointer-events:auto}
+  .small{padding:10px 12px;border-radius:10px;border:0;background:linear-gradient(180deg,#fff,#f3f3f3);font-weight:800;cursor:pointer}
+  .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(.96);z-index:20;padding:20px;border-radius:14px;background:linear-gradient(180deg,#fff,#fff);color:#0b1112;box-shadow:0 40px 120px rgba(2,6,23,0.6);display:none;pointer-events:auto}
+  .modal.show{display:block;animation:pop .42s cubic-bezier(.2,.9,.3,1) both}
+  @keyframes pop{from{opacity:0;transform:translate(-50%,-50%) scale(.86)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  .modal h2{margin:0 0 8px 0;font-size:22px;font-weight:900}
+  .modal .row{display:flex;gap:12px;margin-top:12px;justify-content:center}
+  .sound-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,10,0.6);z-index:30;pointer-events:auto}
+  .sound-card{background:linear-gradient(180deg,#081221,#0f2630);padding:18px;border-radius:12px;color:#fff;text-align:center;box-shadow:0 30px 100px rgba(0,0,0,0.7)}
+  .credit{position:fixed;left:12px;bottom:10px;font-size:12px;color:rgba(255,255,255,0.08);z-index:4}
+  @media (prefers-reduced-motion: reduce){.prism,.glass-btn,.tool,.small,.modal{animation:none!important;transition:none!important}}
+  @media (max-width:520px){.card{padding:14px;border-radius:12px}.glass-btn{padding:12px 28px;font-size:16px}.poem-line{font-size:16px}}
 </style>
 </head>
 <body>
-
 <canvas id="stage" aria-hidden="true"></canvas>
 <div class="prism" aria-hidden="true"></div>
 
-<!-- UI -->
+<!-- Intro -->
 <div class="ui" aria-hidden="false">
   <div class="card" id="introCard" role="region" aria-label="Intro">
     <div class="lead">This isn’t a normal website…</div>
     <button id="startBtn" class="glass-btn" aria-label="Tap to begin">Tap Here</button>
-    <div class="micro">Tap to unlock the experience • Mobile ready • Cinematic</div>
+    <div class="micro">Tap to unlock • Mobile ready • Cinematic</div>
   </div>
 </div>
 
-<!-- tools -->
+<!-- Tools -->
 <div class="tools" id="tools" style="display:none">
   <button class="tool" id="btnPoem">Continue</button>
-  <button class="tool" id="btnOneLast">One Last Surprise</button>
+  <button class="tool" id="btnOneLast">One last surprise</button>
 </div>
 
-<!-- poem container -->
+<!-- Poem -->
 <div class="poem-area" id="poemArea" aria-live="polite"></div>
 
-<!-- modal proposal -->
+<!-- Modal proposal -->
 <div class="modal" id="proposalModal" role="dialog" aria-modal="true" aria-hidden="true">
   <h2 id="modalTitle">Will you be my universe? 💫</h2>
-  <div style="color:rgba(0,0,0,0.58); margin-top:4px;">Choose</div>
+  <div style="color:rgba(0,0,0,0.58);margin-top:6px">Choose</div>
   <div class="row" style="margin-top:12px;">
     <button id="yesBtn" class="glass-btn" style="background:linear-gradient(180deg,hsl(320 85% 70%), hsl(320 78% 60%));">YES</button>
     <button id="noBtn" class="glass-btn" style="background:linear-gradient(180deg,#111,#0b0b0d);">NO</button>
   </div>
 </div>
 
-<!-- bottom controls -->
+<!-- Bottom controls -->
 <div class="bottom-controls" id="bottomControls" style="display:none">
-  <button id="continueBtn" class="small-btn">Continue</button>
-  <button id="resetBtn" class="small-btn">Reset</button>
+  <button id="continueBtn" class="small">Continue</button>
+  <button id="resetBtn" class="small">Reset</button>
 </div>
 
-<!-- sound overlay -->
+<!-- Sound overlay -->
 <div class="sound-overlay" id="soundOverlay">
   <div class="sound-card">
     <div style="font-weight:800;font-size:18px">Enable sound</div>
-    <div style="margin-top:8px;color:rgba(255,255,255,0.78);">Tap to allow cinematic music & effects</div>
-    <button id="allowSound" class="glass-btn" style="margin-top:12px;">Enable Sound</button>
+    <div style="margin-top:8px;color:rgba(255,255,255,0.78)">Tap to allow cinematic music & effects</div>
+    <button id="allowSound" class="glass-btn" style="margin-top:12px">Enable Sound</button>
   </div>
 </div>
 
 <div class="credit">single-file • tulip universe</div>
 
 <script>
-/* =================================================================
-   Premium Proposal Single-file App
-   - Canvas drawing & animations: stars, nebula, tulips, bouquet, petals
-   - WebAudio synth: ambient pad, heartbeat, whoosh, chime
-   - Poem reveal (2 lines at a time), bouquet formation, modal
-   - Mobile-friendly & robust fallbacks
-   ================================================================= */
-
-(() => {
+(function(){
   'use strict';
 
-  /* ---------- CONFIG ---------- */
-  const AUTO_ADVANCE_MS = 10000; // fallback auto-advance when idle
-  const POEM_PAUSE_MS = 2000; // pause between poem chunks
+  const AUTO_ADVANCE_MS = 10000;
+  const POEM_PAUSE_MS = 1800;
+
   const canvas = document.getElementById('stage');
   const ctx = canvas.getContext('2d', { alpha: true });
   let DPR = Math.max(1, window.devicePixelRatio || 1);
 
-  // DOM refs
   const startBtn = document.getElementById('startBtn');
   const introCard = document.getElementById('introCard');
   const tools = document.getElementById('tools');
@@ -198,7 +127,6 @@
   const soundOverlay = document.getElementById('soundOverlay');
   const allowSound = document.getElementById('allowSound');
 
-  // exact poem lines (DO NOT ALTER)
   const POEM_LINES = [
 "Sometimes I think I fell for you",
 "before I even learned how falling works.",
@@ -228,70 +156,64 @@
 "but completely..."
   ];
 
-  // apology message to display on bouquet touch (exact)
-  const APOLOGY_MESSAGE = `So Sorry Bittuuu betuuu babuuuu chotuu priyanshuu chikuuuuu yawll
-maaf krdeyy for my bad behavior
+  const APOLOGY_MESSAGE = `So Sorry Bittuuu betuuu babuuuu chotuu priyanshuu chikuuuuu yawll maaf krdeyy for my bad behavior
 I'm so so so sorry Betuuuuuu
 maaf krdeyy bccheyyy
 ywr meko please`;
 
-  /* ---------- Canvas sizing ---------- */
-  function resize() {
+  // sizing
+  function resize(){
     DPR = Math.max(1, window.devicePixelRatio || 1);
     canvas.width = Math.floor(window.innerWidth * DPR);
     canvas.height = Math.floor(window.innerHeight * DPR);
     canvas.style.width = window.innerWidth + 'px';
     canvas.style.height = window.innerHeight + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
   }
   addEventListener('resize', resize);
   resize();
 
-  /* ---------- Helpers ---------- */
   const rand = (a,b) => a + Math.random()*(b-a);
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
-  const ease = t => 1 - Math.pow(1 - t, 3);
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- Audio (WebAudio) ---------- */
+  // Audio
   let audio = null;
-  function initAudio() {
+  function initAudio(){
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       const ac = new AudioCtx();
       const master = ac.createGain(); master.gain.value = 0.0; master.connect(ac.destination);
 
-      // Ambient pad: layered oscillators with lowpass
+      // pad
       const padGain = ac.createGain(); padGain.gain.value = 0.0; padGain.connect(master);
-      const padFilter = ac.createBiquadFilter(); padFilter.type='lowpass'; padFilter.frequency.value = 1100; padFilter.Q.value = 0.7; padFilter.connect(padGain);
-      const freqs = [220, 277.18, 330];
+      const padFilter = ac.createBiquadFilter(); padFilter.type='lowpass'; padFilter.frequency.value = 1200; padFilter.Q.value=0.8; padFilter.connect(padGain);
+      const freqs = [220,277.18,330];
       const padNodes = freqs.map((f,i)=>{
-        const osc = ac.createOscillator(); osc.type = i===1?'sine':'triangle'; osc.frequency.value = f;
+        const o = ac.createOscillator(); o.type = i===1 ? 'sine' : 'triangle'; o.frequency.value = f;
         const g = ac.createGain(); g.gain.value = 0;
-        osc.connect(g); g.connect(padFilter);
-        // slow LFO to amplitude
-        const lfo = ac.createOscillator(); lfo.type='sine'; lfo.frequency.value = 0.04 + i*0.01;
-        const lfoG = ac.createGain(); lfoG.gain.value = 0.04;
+        o.connect(g); g.connect(padFilter);
+        const lfo = ac.createOscillator(); lfo.type='sine'; lfo.frequency.value = 0.05 + i*0.01;
+        const lfoG = ac.createGain(); lfoG.gain.value = 0.06;
         lfo.connect(lfoG); lfoG.connect(g.gain);
-        osc.start(); lfo.start();
-        return {osc,g,lfo,lfoG};
+        o.start(); lfo.start();
+        return {o,g,lfo,lfoG};
       });
 
-      function startAmbient() {
-        padNodes.forEach((n,i) => {
+      function startAmbient(){
+        padNodes.forEach((n,i)=>{
           n.gain.gain.cancelScheduledValues(ac.currentTime);
           n.gain.gain.setValueAtTime(0, ac.currentTime);
-          n.gain.gain.linearRampToValueAtTime(0.06 / (i+0.8), ac.currentTime + 1.6);
+          n.gain.gain.linearRampToValueAtTime(0.06/(i+0.8), ac.currentTime + 1.6);
         });
         master.gain.cancelScheduledValues(ac.currentTime);
         master.gain.setValueAtTime(0, ac.currentTime);
         master.gain.linearRampToValueAtTime(1.0, ac.currentTime + 1.6);
       }
 
-      function heartbeat() {
+      function heartbeat(){
         const t0 = ac.currentTime;
-        const o = ac.createOscillator(); o.type='sine'; o.frequency.value=60;
-        const g = ac.createGain(); g.gain.value=0;
+        const o = ac.createOscillator(); o.type='sine'; o.frequency.value = 60;
+        const g = ac.createGain(); g.gain.value = 0;
         const f = ac.createBiquadFilter(); f.type='lowpass'; f.frequency.value = 220;
         o.connect(f); f.connect(g); g.connect(master);
         o.start();
@@ -301,11 +223,11 @@ ywr meko please`;
         o.stop(t0+0.6);
       }
 
-      function whoosh(duration=0.45, freq=1200) {
+      function whoosh(duration=0.45, freq=1200){
         const bufferSize = ac.sampleRate * duration;
         const noiseBuffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
         const output = noiseBuffer.getChannelData(0);
-        for (let i=0; i<bufferSize; i++) output[i] = (Math.random()*2-1) * Math.pow(1 - i/bufferSize, 1.6);
+        for (let i=0;i<bufferSize;i++) output[i] = (Math.random()*2-1) * Math.pow(1 - i/bufferSize, 1.6);
         const src = ac.createBufferSource(); src.buffer = noiseBuffer;
         const bi = ac.createBiquadFilter(); bi.type='bandpass'; bi.frequency.value = freq; bi.Q.value = 0.8;
         const g = ac.createGain(); g.gain.value = 0.88;
@@ -313,14 +235,14 @@ ywr meko please`;
         src.start();
       }
 
-      function chime() {
+      function chime(){
         const t0 = ac.currentTime;
-        const notes = [880, 1320, 1760];
-        notes.forEach((n,i) => {
-          const o = ac.createOscillator(); o.type='triangle'; o.frequency.value=n;
-          const g = ac.createGain(); g.gain.value=0;
+        const notes = [880,1320,1760];
+        notes.forEach((n,i)=>{
+          const o = ac.createOscillator(); o.type='triangle'; o.frequency.value = n;
+          const g = ac.createGain(); g.gain.value = 0;
           o.connect(g); g.connect(master);
-          const delay = i * 0.04;
+          const delay = i*0.04;
           o.start(t0 + delay);
           g.gain.setValueAtTime(0, t0 + delay);
           g.gain.linearRampToValueAtTime(0.14, t0 + delay + 0.02);
@@ -332,66 +254,55 @@ ywr meko please`;
       audio = { ac, master, startAmbient, heartbeat, whoosh, chime };
       return true;
     } catch (e) {
-      console.warn('Audio init failed', e);
+      console.warn('audio init failed', e);
       audio = null;
       return false;
     }
   }
 
-  // init audio on user gesture
-  function ensureAudio() {
+  function ensureAudioOnGesture(){
     if (!audio) initAudio();
     if (audio) {
-      try { audio.startAmbient(); } catch(e) { /* ignore */ }
+      try{ audio.startAmbient(); } catch(e){}
       return true;
     }
     return false;
   }
 
-  /* ---------- Visual state ---------- */
-  let raf = null;
-  let lastT = 0;
+  // Visual state
+  let raf = null, lastTime = 0;
   let stars = [], nebula = [], tulips = [], particles = [];
-  let bouquetMode = false, bouquetFormed = false, poemInProgress = false;
-  let poemIndex = 0;
+  let bouquetMode=false, bouquetFormed=false, poemStarted=false, poemIndex=0;
   let autoTimers = [];
 
   function clearAutoTimers(){ autoTimers.forEach(t=>clearTimeout(t)); autoTimers=[]; }
 
-  /* ---------- Init visual assets ---------- */
   function initVisuals(){
-    // stars
-    stars = [];
-    const sc = Math.round(clamp(window.innerWidth / 6, 40, 220));
-    for (let i=0;i<sc;i++) stars.push({ x: Math.random()*innerWidth, y: Math.random()*innerHeight*0.55, r: Math.random()*1.7 + 0.3, tw: Math.random()*Math.PI*2, speed: 0.0006 + Math.random()*0.0024, bright: 0.4 + Math.random()*0.9 });
-
-    // nebula blobs
-    nebula = [];
+    stars = []; nebula = []; tulips = []; particles = []; bouquetMode=false; bouquetFormed=false; poemStarted=false; poemIndex=0;
+    const sc = Math.round(clamp(window.innerWidth / 6, 50, 240));
+    for (let i=0;i<sc;i++) stars.push({ x: Math.random()*innerWidth, y: Math.random()*innerHeight*0.55, r: Math.random()*1.6 + 0.3, tw: Math.random()*Math.PI*2, speed: 0.0008 + Math.random()*0.0022, bright: 0.4 + Math.random()*0.9 });
     for (let i=0;i<4;i++) nebula.push({ x: Math.random()*innerWidth, y: Math.random()*innerHeight*0.45, r: rand(innerWidth*0.25, innerWidth*0.6), hue: rand(260,340), a: 0.06 + Math.random()*0.12 });
 
-    // tulip field (layered)
-    tulips = [];
     const rows = Math.round(clamp(window.innerHeight / 26, 6, 14));
     for (let row=0; row<rows; row++){
-      const depth = row / rows; // 0 front, 1 back
+      const depth = row / rows;
       const count = Math.round(clamp(8 + (1-depth)*18, 6, 28));
-      const y = window.innerHeight - (row * (window.innerHeight/(rows*1.12))) - 30;
+      const y = innerHeight - (row * (innerHeight/(rows*1.12))) - 30;
       for (let i=0;i<count;i++){
-        const x = rand(36, window.innerWidth-36);
+        const x = rand(36, innerWidth-36);
         const s = 0.55 + (1 - depth) * 1.25 + rand(-0.06,0.06);
         const hue = rand(320,350);
         tulips.push(new Tulip(x, y + rand(-8,8), s, hue, depth));
       }
     }
     tulips.sort((a,b)=> a.y - b.y);
-    particles = [];
-    bouquetMode = false; bouquetFormed = false; poemInProgress=false; poemIndex = 0;
   }
 
-  /* ---------- Tulip class ---------- */
   function Tulip(x,y,scale,hue,depth){
-    this.x = x; this.y = y; this.baseY = y; this.scale = scale; this.hue = hue; this.depth = depth;
-    this.growth = rand(0.3, 1.0); this.swing = rand(0, Math.PI*2); this.inBouquet=false; this.target=null;
+    this.x=x; this.y=y; this.baseY=y; this.scale=scale; this.hue=hue; this.depth=depth;
+    this.growth = rand(0.3,1.0);
+    this.swing = rand(0, Math.PI*2);
+    this.inBouquet = false; this.target = null;
   }
   Tulip.prototype.update = function(dt){
     if (this.growth < 1) this.growth = Math.min(1, this.growth + dt*0.5);
@@ -401,27 +312,22 @@ ywr meko please`;
       this.x += (this.target.x - this.x) * clamp(dt*6, 0, 1);
       this.y += (this.target.y - this.y) * clamp(dt*6, 0, 1);
     } else {
-      // micro movement
       this.x += Math.sin(this.swing*0.5) * 0.02;
     }
   };
   Tulip.prototype.draw = function(ctx){
     ctx.save();
-    // shadow
-    ctx.beginPath(); ctx.ellipse(this.x, this.baseY + 6*this.scale, 12*this.scale*(1 + (1-this.depth)*0.6), 3*this.scale, 0,0,Math.PI*2); ctx.fillStyle='rgba(6,8,10,0.14)'; ctx.fill();
-
-    // stem
+    ctx.beginPath();
+    ctx.ellipse(this.x, this.baseY + 6*this.scale, 12*this.scale*(1 + (1-this.depth)*0.6), 3*this.scale, 0, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(6,8,10,0.14)';
+    ctx.fill();
     const stemLen = 72*this.scale*(0.45 + this.growth*0.95);
     ctx.beginPath(); ctx.moveTo(this.x, this.baseY);
     ctx.quadraticCurveTo(this.x - 8*this.scale + this._sway*0.18, this.baseY - stemLen*0.42, this.x + this._sway*0.4, this.baseY - stemLen);
     ctx.lineWidth = 3*this.scale; ctx.strokeStyle = 'hsl(140 45% 22%)'; ctx.lineCap = 'round'; ctx.stroke();
-
-    // leaf
     ctx.beginPath(); ctx.moveTo(this.x - 6*this.scale, this.baseY - stemLen*0.45);
     ctx.quadraticCurveTo(this.x - 36*this.scale, this.baseY - stemLen*0.62, this.x - 6*this.scale, this.baseY - stemLen*0.12);
     ctx.fillStyle = 'rgba(18,90,62,0.86)'; ctx.fill();
-
-    // petals: 3 layers with gradients for depth
     const petalY = this.baseY - stemLen;
     const petalScale = 1.0 * this.scale;
     for (let i=0;i<3;i++){
@@ -439,15 +345,13 @@ ywr meko please`;
       ctx.bezierCurveTo(6*petalScale,36*petalScale,-8*petalScale,28*petalScale,-8*petalScale,12*petalScale);
       ctx.closePath(); ctx.fill();
       ctx.beginPath(); ctx.moveTo(0,2*petalScale); ctx.quadraticCurveTo(6*petalScale,-2*petalScale,10*petalScale,18*petalScale);
-      ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 0.8; ctx.stroke();
       ctx.restore();
     }
-    // center
-    ctx.beginPath(); ctx.arc(this.x + this._sway*0.4, petalY + 6*petalScale, 3*petalScale, 0, Math.PI*2); ctx.fillStyle='rgba(28,12,16,0.92)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(this.x + this._sway*0.4, petalY + 6*petalScale, 3*petalScale, 0, Math.PI*2); ctx.fillStyle = 'rgba(28,12,16,0.92)'; ctx.fill();
     ctx.restore();
   };
 
-  /* ---------- Particle class (petals) ---------- */
   function Particle(x,y,vx,vy,life,color,size){
     this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.life=life; this.maxLife=life; this.color=color; this.size=size;
   }
@@ -455,7 +359,7 @@ ywr meko please`;
     this.life -= dt;
     this.x += this.vx * dt * 60;
     this.y += this.vy * dt * 60;
-    this.vy += 0.03; // gravity
+    this.vy += 0.03;
   };
   Particle.prototype.draw = function(ctx){
     if (this.life <= 0) return;
@@ -468,103 +372,79 @@ ywr meko please`;
     ctx.globalAlpha = 1;
   };
 
-  /* ---------- Render loop ---------- */
-  let lastTime = 0;
+  function spawnPetal(x,y,color){
+    particles.push(new Particle(x,y, rand(-0.6,0.6), rand(-0.6,0.8), rand(1.8,4.2), color || `hsl(${rand(320,350)} 88% ${rand(54,68)}%)`, rand(3.5,7)));
+    if (particles.length > 900) particles.splice(0, particles.length - 900);
+  }
+
   function render(ts){
     if (!lastTime) lastTime = ts;
     const dt = Math.min(0.04, (ts - lastTime)/1000);
     lastTime = ts;
 
-    // clear
     ctx.clearRect(0,0,canvas.width/DPR, canvas.height/DPR);
-
-    // subtle gradient
     const bg = ctx.createLinearGradient(0,0,0,innerHeight);
-    bg.addColorStop(0,'rgba(8,6,12,0.12)');
-    bg.addColorStop(1,'rgba(2,4,8,0.98)');
+    bg.addColorStop(0, 'rgba(8,6,12,0.12)'); bg.addColorStop(1, 'rgba(2,4,8,0.98)');
     ctx.fillStyle = bg; ctx.fillRect(0,0,innerWidth,innerHeight);
 
-    // nebula
-    nebula.forEach(n => {
+    nebula.forEach(n=>{
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
       const g = ctx.createRadialGradient(n.x, n.y, n.r*0.02, n.x, n.y, n.r);
       g.addColorStop(0, `hsla(${n.hue},80%,70%,${n.a})`); g.addColorStop(1, 'rgba(6,6,12,0)');
       ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(n.x, n.y, n.r, n.r*0.6, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
     });
 
-    // stars
     const tscale = ts * 0.001;
-    stars.forEach(s => {
+    stars.forEach(s=>{
       const alpha = Math.max(0.12, Math.min(1, s.bright * (0.6 + 0.4*Math.sin(s.tw + tscale*s.speed*120))));
       ctx.beginPath(); ctx.fillStyle = `rgba(255,255,255,${alpha})`; ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
       s.tw += s.speed * 0.8;
     });
 
-    // ground band
-    const gh = 160;
-    const gy = innerHeight - gh;
-    const gg = ctx.createLinearGradient(0,gy,0,innerHeight);
-    gg.addColorStop(0, 'rgba(6,18,16,0.9)'); gg.addColorStop(1,'rgba(2,6,6,0.98)');
+    const gh = 160; const gy = innerHeight - gh;
+    const gg = ctx.createLinearGradient(0,gy,0,innerHeight); gg.addColorStop(0,'rgba(6,18,16,0.9)'); gg.addColorStop(1,'rgba(2,6,6,0.98)');
     ctx.fillStyle = gg; ctx.fillRect(0, gy, innerWidth, gh + 40);
 
-    // tulips
     tulips.sort((a,b)=> a.y - b.y);
-    for (let t of tulips) {
-      try { t.update(dt); t.draw(ctx); } catch(e) { /* ignore drawing errors */ }
-    }
+    for (let t of tulips){ try { t.update(dt); t.draw(ctx); } catch(e){} }
 
-    // particles (petals)
-    for (let i=particles.length-1;i>=0;i--){
-      const p = particles[i];
-      p.update(dt);
-      if (p.life <= 0) particles.splice(i,1);
-      else p.draw(ctx);
-    }
+    for (let i=particles.length-1;i>=0;i--){ const p = particles[i]; p.update(dt); if (p.life <= 0) particles.splice(i,1); else p.draw(ctx); }
 
-    // bouquet glow / occasional petals
-    if (bouquetFormed) {
-      const cx = innerWidth / 2, cy = innerHeight / 2;
-      const rg = ctx.createRadialGradient(cx, cy, 10, cx, cy, 420); rg.addColorStop(0, 'rgba(255,210,240,0.12)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = rg; ctx.fillRect(0,0,innerWidth, innerHeight);
-      if (Math.random() < 0.65) spawnPetal(cx + rand(-60,60), cy - rand(0,60));
+    if (bouquetFormed){
+      const cx = innerWidth/2, cy = innerHeight/2;
+      const rg = ctx.createRadialGradient(cx, cy, 10, cx, cy, 420);
+      rg.addColorStop(0, 'rgba(255,210,240,0.12)'); rg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = rg; ctx.fillRect(0,0,innerWidth,innerHeight);
+      if (Math.random() < 0.7) spawnPetal(cx + rand(-60,60), cy - rand(0,60));
     }
 
     raf = requestAnimationFrame(render);
   }
 
-  /* ---------- spawn petals ---------- */
-  function spawnPetal(x,y,color) {
-    particles.push(new Particle(x,y, rand(-0.6,0.6), rand(-0.6,0.9), rand(1.8,4.6), color || `hsl(${rand(320,350)} 88% ${rand(54,68)}%)`, rand(3.5,7)));
-    if (particles.length > 1000) particles.splice(0, particles.length - 1000);
-  }
-
-  /* ---------- bouquet formation ---------- */
-  function formBouquet() {
+  // bouquet formation
+  function formBouquet(){
     if (bouquetMode) return;
     bouquetMode = true;
-    const cx = innerWidth/2, cy = innerHeight/2 + 10;
-    const sorted = tulips.slice().sort((a,b) => (Math.hypot(a.x-cx,a.y-cy) - Math.hypot(b.x-cx,b.y-cy)));
+    const cx = innerWidth/2, cy = innerHeight/2 + 20;
+    const sorted = tulips.slice().sort((a,b)=> (Math.hypot(a.x-cx,a.y-cy) - Math.hypot(b.x-cx,b.y-cy)));
     const pick = sorted.slice(0, 10);
-    pick.forEach((t,i) => {
+    pick.forEach((t,i)=>{
       t.inBouquet = true;
       const angle = (i / pick.length) * Math.PI*2;
       const r = 22 + (i%3)*6;
       t.target = { x: cx + Math.cos(angle)*r + rand(-6,6), y: cy + Math.sin(angle)*(6 + (i%2)*8) + rand(-6,6) };
     });
-    // ribbon simulation visual: spawn spiral particles
     setTimeout(()=> {
       bouquetFormed = true;
       if (audio) { try { audio.whoosh(0.45, 1100); audio.chime(); } catch(e){} }
-      // show modal after short delay
-      setTimeout(()=> showProposalModal(), 900);
+      setTimeout(()=> showModal(), 900);
     }, 700);
   }
 
-  /* ---------- Poem reveal (two lines at a time) ---------- */
+  // poem reveal (two lines at a time)
   let poemTimer = null;
-  function showPoem() {
-    poemArea.innerHTML = ''; poemArea.style.display = 'block';
-    poemInProgress = true; poemIndex = 0;
+  function showPoem(){
+    poemArea.innerHTML = ''; poemArea.style.display = 'block'; poemStarted = true; poemIndex = 0;
     revealPoemChunk();
   }
   function revealPoemChunk(){
@@ -574,159 +454,94 @@ ywr meko please`;
       const d = document.createElement('div'); d.className = 'poem-line'; d.textContent = line;
       poemArea.appendChild(d);
     }
-    // animate lines in
     requestAnimationFrame(()=> {
-      poemArea.querySelectorAll('.poem-line').forEach((n, idx) => {
-        n.style.opacity = '1'; n.style.transform = 'translateY(0)';
-      });
+      poemArea.querySelectorAll('.poem-line').forEach((n, idx) => { n.style.opacity = '1'; n.style.transform = 'translateY(0)'; });
     });
-    // audio reaction & tulip bloom
     if (audio) { try { audio.whoosh(0.02, 1200); } catch(e){} }
     const sample = tulips[Math.floor(Math.random()*tulips.length)]; if (sample) sample.growth = Math.min(1, sample.growth + 0.14);
-
     poemIndex += 2;
-    if (poemIndex >= POEM_LINES.length) {
-      clearTimeout(poemTimer);
-      setTimeout(()=> { tools.style.display = 'flex'; btnOneLast.animate([{transform:'scale(.98)'},{transform:'scale(1)'}], { duration:600, easing:'cubic-bezier(.2,.9,.3,1) }); }, 900);
-      return;
-    }
-    poemTimer = setTimeout(()=> revealPoemChunk(), POEM_PAUSE_MS + 400);
+    if (poemIndex >= POEM_LINES.length) { clearTimeout(poemTimer); setTimeout(()=> { tools.style.display = 'flex'; btnOneLast.animate([{transform:'scale(.98)'},{transform:'scale(1)'}], { duration:600, easing:'cubic-bezier(.2,.9,.3,1) }); }, 900); return; }
+    poemTimer = setTimeout(()=> revealPoemChunk(), POEM_PAUSE_MS + 300);
   }
 
-  /* ---------- Modal ---------- */
-  function showProposalModal() { proposalModal.classList.add('show'); proposalModal.setAttribute('aria-hidden','false'); }
-  function hideProposalModal() { proposalModal.classList.remove('show'); proposalModal.setAttribute('aria-hidden','true'); }
+  function showModal(){ proposalModal.classList.add('show'); proposalModal.setAttribute('aria-hidden','false'); }
+  function hideModal(){ proposalModal.classList.remove('show'); proposalModal.setAttribute('aria-hidden','true'); }
 
-  /* ---------- YES celebration ---------- */
   function celebrateYes(){
-    for (let i=0;i<300;i++) spawnPetal(rand(0,innerWidth), rand(-40, innerHeight*0.25));
+    for (let i=0;i<300;i++) spawnPetal(rand(0,innerWidth), rand(-40, innerHeight*0.24));
     if (audio) { try { audio.chime(); audio.heartbeat(); } catch(e){} }
     poemArea.innerHTML = '<div style="text-align:center;font-weight:800;font-size:20px;color:#fff">You were always my favorite galaxy 🌙🌷</div>';
     poemArea.style.display = 'block';
-    hideProposalModal();
+    hideModal();
   }
 
-  /* ---------- NO dodge ---------- */
-  let noDodgeCount = 0;
+  let noDodge = 0;
   function handleNo(){
-    if (noDodgeCount < 2) {
+    if (noDodge < 2){
       const tx = rand(-140,140), ty = rand(-50,50);
       noBtn.style.transform = `translate(${tx}px, ${ty}px)`;
-      noDodgeCount++;
+      noDodge++;
       if (audio) try { audio.whoosh(0.03, 900); } catch(e){}
       setTimeout(()=> { noBtn.style.transform = 'translate(0,0)'; }, 820);
     } else {
-      hideProposalModal();
+      hideModal();
       poemArea.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.92)">It\'s okay — take your time.</div>';
       poemArea.style.display = 'block';
     }
   }
 
-  /* ---------- Auto-advance safety ---------- */
-  function safeAdvance(fn, t = AUTO_ADVANCE_MS) {
-    const id = setTimeout(()=> { try{ fn(); } catch(e){ console.warn(e); } }, t);
-    autoTimers.push(id); return id;
-  }
-
-  /* ---------- Event wiring (flow) ---------- */
-
-  // Start action (first gesture)
-  startBtn.addEventListener('click', (e) => {
-    // initialize audio and start ambient pad
-    const hasAudio = ensureAudio();
-    if (!hasAudio) {
-      // show sound overlay to request permission
-      soundOverlay.style.display = 'flex';
-    }
-    // cinematic dissolve: spawn initial petals
+  // flow event wiring
+  startBtn.addEventListener('click', ()=>{
+    const ok = ensureAudioOnGesture();
+    if (!ok) soundOverlay.style.display = 'flex';
     for (let i=0;i<48;i++) spawnPetal(innerWidth/2 + rand(-32,32), innerHeight/2 + rand(-28,28), `hsl(${rand(320,350)} 88% ${rand(54,68)}%)`);
-    if (audio) try { audio.whoosh(0.02, 1200); } catch(e){}
-
-    // hide intro card
+    if (audio) try { audio.whoosh(0.02,1200); } catch(e){}
     introCard.style.display = 'none';
-    // show bottom controls and tools after small delay
-    setTimeout(()=> { bottomControls.style.display = 'flex'; tools.style.display = 'flex'; btnPoem.focus(); tulips.forEach(t => t.growth = Math.min(1, t.growth + 0.26)); }, 420);
-
-    // ensure render running
+    setTimeout(()=> { bottomControls.style.display = 'flex'; tools.style.display = 'flex'; btnPoem.focus(); tulips.forEach(t=> t.growth = Math.min(1, t.growth + 0.26)); }, 420);
     if (!raf) raf = requestAnimationFrame(render);
-
-    // auto show poem if idle
-    safeAdvance(()=> { if (!poemInProgress) showPoem(); }, AUTO_ADVANCE_MS);
+    clearAutoTimers(); autoTimers.push(setTimeout(()=> { if (!poemStarted) showPoem(); }, AUTO_ADVANCE_MS));
   }, { once:true });
 
-  // Poem button
-  btnPoem.addEventListener('click', () => { if (!poemInProgress) showPoem(); else revealPoemChunk(); });
-
-  continueBtn.addEventListener('click', () => { if (!poemInProgress) showPoem(); else revealPoemChunk(); });
-
-  // One last surprise -> bouquet
-  btnOneLast.addEventListener('click', () => formBouquet());
-
-  // Reset
-  resetBtn.addEventListener('click', ()=> {
+  btnPoem.addEventListener('click', ()=> { if (!poemStarted) showPoem(); else revealPoemChunk(); });
+  continueBtn.addEventListener('click', ()=> { if (!poemStarted) showPoem(); else revealPoemChunk(); });
+  btnOneLast.addEventListener('click', ()=> formBouquet());
+  resetBtn.addEventListener('click', ()=>{
     clearAutoTimers();
-    poemArea.style.display='none';
-    tools.style.display='none';
-    bottomControls.style.display='none';
-    introCard.style.display='flex';
-    proposalModal.classList.remove('show');
-    noDodgeCount = 0;
+    poemArea.style.display='none'; tools.style.display='none'; bottomControls.style.display='none';
+    introCard.style.display='flex'; proposalModal.classList.remove('show'); noDodge=0;
     initVisuals();
   });
-
   yesBtn.addEventListener('click', celebrateYes);
   noBtn.addEventListener('click', handleNo);
 
-  // bouquet click: if bouquet formed and user taps center, show apology then proposal
-  canvas.addEventListener('click', (ev) => {
+  canvas.addEventListener('click', (ev)=>{
     if (!bouquetFormed) return;
     const dx = ev.clientX - innerWidth/2, dy = ev.clientY - innerHeight/2;
-    if (Math.hypot(dx,dy) < 140) {
-      // show apology message with smooth animation
+    if (Math.hypot(dx,dy) < 140){
       poemArea.innerHTML = `<div style="white-space:pre-line;text-align:center;color:#ffdbe8;font-weight:700">${APOLOGY_MESSAGE}</div>`;
       poemArea.style.display = 'block';
-      // then show the proposal modal after small delay
-      setTimeout(()=> showProposalModal(), 900);
+      setTimeout(()=> showModal(), 900);
       if (audio) try { audio.whoosh(0.02,1200); } catch(e){}
     }
   });
 
-  // sound overlay allow
   allowSound.addEventListener('click', ()=> {
     initAudio();
     if (audio) try { audio.startAmbient(); } catch(e){}
     soundOverlay.style.display = 'none';
   });
 
-  // keyboard accessibility: Enter/Space to activate focused button
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', (e)=>{
     if ((e.key === 'Enter' || e.key === ' ') && document.activeElement) {
-      try { document.activeElement.click(); } catch(e) {}
+      try { document.activeElement.click(); } catch(e){}
     }
   });
 
-  /* ---------- Initialize & start ---------- */
-  try {
-    initVisuals();
-    raf = requestAnimationFrame(render);
-  } catch(err) {
-    console.error('Init error', err);
-    introCard.style.display = 'flex';
-    tools.style.display = 'flex';
-    bottomControls.style.display = 'flex';
-  }
+  // voice of init
+  try { initVisuals(); raf = requestAnimationFrame(render); } catch(err){ console.error('init err',err); introCard.style.display='flex'; tools.style.display='flex'; bottomControls.style.display='flex'; }
 
-  // ensure gesture available
-  document.addEventListener('pointerdown', function once(){ document.removeEventListener('pointerdown', once); });
-
-  /* ---------- Safety: resize handling ---------- */
-  window.addEventListener('resize', () => {
-    // re-init visuals to rebalance field on resize
-    initVisuals();
-  });
-
-  /* ---------- Expose small debug (optional) ---------- */
-  window._proposalApp = { initVisuals, formBouquet, ensureAudio };
+  // expose small helpers (debug)
+  window._proposal = { initVisuals, formBouquet };
 
 })();
 </script>
